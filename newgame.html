@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>裂隙回响</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background:#000; min-height:100vh; display:flex; justify-content:center; align-items:center;
+            font-family:'Press Start 2P',monospace; padding:0; image-rendering:pixelated;
+            -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; overflow:hidden;
+        }
+        .crt-monitor {
+            background:#0b0b12; border:8px solid #3d3d4a; border-radius:0;
+            box-shadow:inset 0 0 40px rgba(0,0,0,0.85); padding:8px 8px 6px; position:relative;
+            outline:2px solid #5a5a6e; outline-offset:1px; image-rendering:pixelated;
+            width:100vw; height:100vh; display:flex; flex-direction:column;
+        }
+        .crt-monitor::after {
+            content:""; position:absolute; top:0; left:0; width:100%; height:100%;
+            background:repeating-linear-gradient(0deg,rgba(0,0,0,0.1) 0px,rgba(0,0,0,0.1) 2px,transparent 2px,transparent 4px);
+            pointer-events:none; z-index:10;
+        }
+        .screen-inner {
+            position:relative; background:#12101c; border:3px solid #4a4a5c; border-radius:2px;
+            padding:10px 8px 6px; display:flex; flex-direction:column; align-items:center; gap:8px;
+            box-shadow:inset 0 0 30px #00000070; image-rendering:crisp-edges; flex:1; overflow:hidden; min-height:0;
+        }
+        .screen-inner::before {
+            content:""; position:absolute; top:0; left:0; width:100%; height:100%;
+            background:rgba(255,255,255,0.012); pointer-events:none; z-index:1;
+            animation:screenFlicker 4s infinite; border-radius:1px;
+        }
+        @keyframes screenFlicker { 0%,99.5%,100%{opacity:0;} 99.6%{opacity:0.3;} }
+        .page { position:relative; z-index:2; width:100%; flex:1; display:flex; flex-direction:column; align-items:center; min-height:0; overflow:hidden; }
+        .page.hidden { display:none; }
+        .menu-page { justify-content:center; gap:40px; }
+        .title-area { display:flex; flex-direction:column; align-items:center; gap:6px; }
+        .main-title {
+            font-size:26px; font-weight:normal; color:#fde8b5; letter-spacing:5px;
+            text-shadow:3px 3px 0 #3d1f6e,0 0 18px #c77dff,0 0 35px #9d4edd; animation:titleGlow 2.5s infinite;
+        }
+        @keyframes titleGlow {
+            0%,100%{text-shadow:3px 3px 0 #3d1f6e,0 0 18px #c77dff,0 0 35px #9d4edd;}
+            50%{text-shadow:3px 3px 0 #3d1f6e,0 0 24px #e0aaff,0 0 45px #b77dff;}
+        }
+        .subtitle { font-size:8px; color:#9b8ab8; }
+        .gem-row { display:flex; gap:8px; }
+        .gem-icon { font-size:16px; filter:drop-shadow(0 0 5px currentColor); animation:gemBounce 1.8s infinite; }
+        .gem-icon:nth-child(1){color:#ff6161} .gem-icon:nth-child(2){color:#5ca0f2;animation-delay:0.25s}
+        .gem-icon:nth-child(3){color:#6fcf6f;animation-delay:0.5s} .gem-icon:nth-child(4){color:#ffd966;animation-delay:0.75s}
+        .gem-icon:nth-child(5){color:#c77dff;animation-delay:1.0s}
+        @keyframes gemBounce { 0%,100%{transform:translateY(0)} 30%{transform:translateY(-8px)} 50%{transform:translateY(0)} 70%{transform:translateY(-3px)} }
+        .menu-buttons { display:flex; flex-direction:column; gap:10px; width:100%; max-width:240px; }
+        .menu-btn {
+            padding:12px 14px; font-family:'Press Start 2P',monospace; font-size:11px; letter-spacing:2px;
+            color:#fde8b5; background:#1f1730; border:2px solid #6b5c7a; cursor:pointer;
+            box-shadow:inset -2px -2px 0 #0f0a1a,inset 2px 2px 0 #3d2f55,0 4px 0 #0f0a1a; transition:0.06s;
+        }
+        .menu-btn:hover {
+            background:#2a1f3d; border-color:#c77dff;
+            box-shadow:inset -2px -2px 0 #120b1f,inset 2px 2px 0 #4a3568,0 4px 0 #0f0a1a,0 0 14px rgba(180,130,255,0.4);
+        }
+        .menu-btn:active { transform:translateY(2px); box-shadow:inset -2px -2px 0 #0f0a1a,inset 2px 2px 0 #3d2f55,0 2px 0 #0f0a1a; }
+        .menu-btn.primary {
+            background:#2a1548; border-color:#c77dff; font-size:13px; letter-spacing:4px;
+            box-shadow:inset -2px -2px 0 #15082b,inset 2px 2px 0 #5a2d8a,0 4px 0 #15082b,0 0 14px rgba(150,80,220,0.4);
+            animation:primaryPulse 2s infinite;
+        }
+        @keyframes primaryPulse {
+            0%,100%{box-shadow:inset -2px -2px 0 #15082b,inset 2px 2px 0 #5a2d8a,0 4px 0 #15082b,0 0 14px rgba(150,80,220,0.4)}
+            50%{box-shadow:inset -2px -2px 0 #15082b,inset 2px 2px 0 #5a2d8a,0 4px 0 #15082b,0 0 22px rgba(200,130,250,0.6)}
+        }
+        .small-btns { display:flex; gap:12px; }
+        .small-btn {
+            font-family:'Press Start 2P',monospace; font-size:7px; letter-spacing:1.5px; color:#9b8ab8;
+            background:transparent; border:2px solid #4a3d5c; padding:6px 10px; cursor:pointer; box-shadow:0 2px 0 #1a1028;
+        }
+        .small-btn:hover { color:#fde8b5; border-color:#9b7fc0; box-shadow:0 2px 0 #1a1028,0 0 10px rgba(160,120,220,0.3); }
+        .announcement-btn {
+            position:absolute; bottom:8px; left:12px; z-index:25; background:#2a1f35; border:2px solid #c77dff;
+            color:#fde8b5; font-size:7px; padding:3px 8px; cursor:pointer;
+        }
+        .version-text { font-size:6px; color:#4a3d5c; }
+        .popup-overlay {
+            position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7);
+            z-index:50; display:flex; align-items:center; justify-content:center; visibility:hidden; pointer-events:none;
+        }
+        .popup-overlay.active { visibility:visible; pointer-events:auto; }
+        .popup-box {
+            background:#1f1730; border:3px solid #c77dff; padding:14px 16px; max-width:280px; width:80%;
+            color:#fde8b5; font-size:8px; position:relative; text-align:center;
+        }
+        .popup-close { position:absolute; top:2px; right:8px; background:none; border:none; color:#ff6161; font-size:12px; cursor:pointer; }
+        .about-room {
+            position:absolute; top:0; left:0; width:100%; height:100%; background:#12101c;
+            z-index:45; display:none; flex-direction:column; align-items:center; padding:12px; gap:8px;
+        }
+        .about-room.active { display:flex; }
+        .room-scene { position:relative; width:100%; height:220px; background:#2a1f35; border:3px solid #5a4a6b; margin-top:4px; overflow:hidden; }
+        .wall {
+            position:absolute; top:0; left:0; width:100%; height:65%; background:#3d3150;
+            background-image:linear-gradient(90deg,#4a3b5c 2px,transparent 2px,transparent 24px),linear-gradient(0deg,#4a3b5c 2px,transparent 2px,transparent 24px);
+            background-size:24px 24px;
+        }
+        .floor { position:absolute; bottom:0; width:100%; height:35%; background:#1f1728; background-image:linear-gradient(90deg,#2a1f32 3px,transparent 3px); background-size:24px 24px; }
+        .interactive { position:absolute; cursor:pointer; z-index:5; }
+        .computer { bottom:32%; left:18%; width:40px; height:30px; background:#3d3d4a; border:2px solid #2a2a35; }
+        .computer::after { content:">"; position:absolute; bottom:2px; right:3px; color:#5cf25c; font-size:10px; }
+        .photo-frame { top:22%; left:8%; width:28px; height:32px; background:#5c4b6b; border:2px solid #dbb42c; }
+        .bookshelf { top:18%; left:58%; width:55px; height:70px; background:#4a3525; border:2px solid #2e1f14; display:flex; flex-wrap:wrap; padding:3px; gap:2px; }
+        .book{width:8px;height:16px;background:#b85c5c} .book:nth-child(2){background:#5c8ab8;height:14px} .book:nth-child(3){background:#6fb86f;height:18px} .book:nth-child(4){background:#dbb42c;height:15px}
+        .window { top:18px; right:25px; width:40px; height:48px; background:#1b1d3a; border:2px solid #6b5c7a; position:absolute; }
+        .info-bubble { position:absolute; bottom:6px; left:6px; right:6px; background:#0f0e1a; border:2px solid #c77dff; padding:6px; color:#fde8b5; font-size:12px; line-height:1.6; display:none; z-index:20; }
+        .scene-radio{display:none} #r-none:checked~.info-bubble{display:none} #r-pc:checked~.pc-info{display:block} #r-photo:checked~.photo-info{display:block} #r-bookshelf:checked~.bookshelf-info{display:block} #r-window:checked~.window-info{display:block}
+        .bubble-close{position:absolute;top:1px;right:4px;color:#ff6161;cursor:pointer;font-size:8px}
+        .game-page { gap:6px; }
+        .hud {
+            width:100%; display:flex; justify-content:space-between; align-items:center; background:#2a2135;
+            border:2px solid #5d4e6e; padding:8px 10px; box-shadow:inset 0 -2px 0 #1f1728;
+            color:#fde8b5; font-size:9px; flex-shrink:0; position:relative;
+        }
+        .hud-item { display:flex; align-items:center; gap:4px; }
+        .score-label { color:#c4a8e0; font-size:7px; }
+        .score-value { color:#fff3cd; font-size:12px; background:#1e1528; padding:2px 6px; border:2px solid #826fa0; }
+        .total-popup {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            font-size: 11px; color: #ffd966; text-shadow: 2px 2px 0 #000;
+            pointer-events: none; display: none; white-space: nowrap; z-index: 5;
+        }
+        .total-popup.negative { color: #ff6161; }
+        .combo-indicator {
+            background:#d94f4f; color:#ffe9b0; padding:3px 7px; border:2px solid #ffb703;
+            font-size:8px; animation:pixelBlink 0.8s steps(2) infinite; display:none;
+        }
+        .combo-indicator.show { display:inline-block; }
+        @keyframes pixelBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        .steps-display { color:#ffdb8e; font-size:11px; }
+        .steps-display.warning { color:#ff6161; animation:pixelBlink 0.6s steps(2) infinite; }
+        .board-container { flex:1; display:flex; align-items:center; justify-content:center; }
+        .board {
+            display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);
+            gap:3px; background:#0f0e1a; border:4px solid #52527a; padding:6px; width:fit-content;
+        }
+        .cell {
+            width:40px; height:40px; background:#2e3142; border:2px solid #5e5b7a;
+            display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer; transition:0.06s;
+            position:relative;
+        }
+        .cell:active { transform:scale(0.9); }
+        .cell::before { content:"◆"; font-size:24px; }
+        .cell.red::before{color:#ff6161} .cell.blue::before{color:#5ca0f2} .cell.green::before{color:#6fcf6f}
+        .cell.yellow::before{color:#ffd966} .cell.purple::before{color:#c77dff}
+        .cell.glitch { background:#1a1a1a; border-color:#444; }
+        .cell.glitch::before { content:"◘"; color:#555; text-shadow:2px 2px 0 #333,-1px -1px 0 #666; }
+        .cell.special { background:#2a1f35; border-color:#dbb42c; }
+        .cell.special::before { content:"✦"; color:#fcee4a; font-size:28px; text-shadow:0 0 14px #ffb703; animation:floatSpecial 0.9s steps(2) infinite; }
+        @keyframes floatSpecial { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
+        .cell.rainbow { background:#1a2a3a; border-color:#ff6b6b; }
+        .cell.rainbow::before { content:"🌈"; font-size:24px; animation:rainbowPulse 0.6s steps(3) infinite; }
+        @keyframes rainbowPulse { 0%{filter:hue-rotate(0deg)} 33%{filter:hue-rotate(120deg)} 66%{filter:hue-rotate(240deg)} 100%{filter:hue-rotate(360deg)} }
+        .cell.rainbow-selected { border-color:#fff !important; box-shadow:0 0 16px #fff,0 0 24px #ff0 !important; }
+        .cell.selected { border-color:#fcee4a !important; box-shadow:0 0 12px #ffb703; }
+
+        /* 像素崩解动画 */
+        .cell.shattering { animation: shatter 0.4s ease-out forwards; }
+        @keyframes shatter {
+            0% { transform: scale(1); opacity: 1; }
+            20% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.2); opacity: 0; }
+        }
+        .shard {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: inherit;
+            pointer-events: none;
+            z-index: 10;
+        }
+        @keyframes shard1 { 0%{opacity:1; transform:translate(0,0);} 100%{opacity:0; transform:translate(-12px,-12px) rotate(45deg);} }
+        @keyframes shard2 { 0%{opacity:1; transform:translate(0,0);} 100%{opacity:0; transform:translate(12px,-12px) rotate(-45deg);} }
+        @keyframes shard3 { 0%{opacity:1; transform:translate(0,0);} 100%{opacity:0; transform:translate(-12px,12px) rotate(-45deg);} }
+        @keyframes shard4 { 0%{opacity:1; transform:translate(0,0);} 100%{opacity:0; transform:translate(12px,12px) rotate(45deg);} }
+
+        .cell.new-spawn { animation:spawnIn 0.25s; }
+        @keyframes spawnIn { 0%{transform:scale(0.3);opacity:0} 100%{transform:scale(1);opacity:1} }
+        .item-belt {
+            width:100%; background:#2b2538; border:2px solid #6b5c7a; padding:5px 8px;
+            display:flex; align-items:center; gap:8px; flex-shrink:0; flex-wrap:wrap;
+        }
+        .item-slot { width:32px; height:32px; background:#19132b; border:2px dashed #5c4b6b; display:flex; align-items:center; justify-content:center; font-size:16px; opacity:0.55; }
+        .back-btn { font-size:7px; color:#9b8ab8; background:none; border:2px solid #4a3d5c; padding:4px 8px; cursor:pointer; margin-left:auto; }
+        .rainbow-hint { color:#ff6b6b; font-size:6px; animation:pixelBlink 0.6s steps(2) infinite; display:none; }
+        .rainbow-hint.show { display:inline; }
+        .glitch-warning {
+            color:#ff6161; font-size:8px; animation:pixelBlink 0.6s steps(2) infinite; display:none;
+            background:#2a1111; border:2px solid #ff4444; padding:3px 7px;
+        }
+        .glitch-warning.show { display:inline-block; }
+        .game-over-overlay {
+            position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8);
+            z-index:30; display:flex; align-items:center; justify-content:center; flex-direction:column;
+            gap:10px; opacity:0; pointer-events:none; transition:0.3s;
+        }
+        .game-over-overlay.active { opacity:1; pointer-events:auto; }
+        .game-over-panel { background:#1f1730; border:4px solid #c77dff; padding:16px; text-align:center; color:#fde8b5; }
+        .restart-btn,.menu-return-btn { font-family:'Press Start 2P',monospace; font-size:9px; background:#2a1548; border:2px solid #c77dff; color:#fde8b5; padding:8px 14px; cursor:pointer; margin:4px; }
+        @media (min-width:768px) {
+            body{background:#0d0b14;padding:20px;overflow:auto}
+            .crt-monitor{border:14px solid #3d3d4a;border-radius:20px;box-shadow:inset 0 0 80px rgba(0,0,0,0.85),0 0 0 5px #1e1e28,0 0 0 10px #0a0a0f;padding:20px 24px 24px;width:auto;max-width:600px;height:auto;transform:scale(1.5);transform-origin:center center}
+            .main-title{font-size:30px} .menu-btn{font-size:13px} .cell{width:44px;height:44px} .game-over-text{font-size:18px}
+        }
+    </style>
+</head>
+<body>
+    <div class="crt-monitor">
+        <div class="screen-inner" id="gameScreen">
+            <div class="page menu-page" id="menuPage">
+                <div class="title-area"><h1 class="main-title">裂 隙 回 响</h1><p class="subtitle">▸ PIXEL MATCH ▸</p></div>
+                <div class="gem-row"><span class="gem-icon">◆</span><span class="gem-icon">◆</span><span class="gem-icon">◆</span><span class="gem-icon">◆</span><span class="gem-icon">◆</span></div>
+                <div class="menu-buttons">
+                    <button class="menu-btn primary" id="startGameBtn">开 始 游 戏</button>
+                    <button class="menu-btn" id="continueBtn">继 续 探 索</button>
+                    <button class="menu-btn">道 具 图 鉴</button>
+                </div>
+                <div class="small-btns"><button class="small-btn" id="settingsBtn">设 定</button><button class="small-btn" id="aboutBtn">关 于</button></div>
+                <span class="version-text">ver 1.0.0</span>
+                <div class="announcement-btn" id="announceBtn">📢 公告</div>
+                <div class="popup-overlay" id="announceOverlay"><div class="popup-box"><span class="popup-close" id="closeAnnounce">✕</span><p>我也不知道写啥</p></div></div>
+                <div class="popup-overlay" id="settingsOverlay">
+                    <div class="popup-box" style="text-align:left;">
+                        <span class="popup-close" id="closeSettings">✕</span>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span>🔊 音量</span><input type="range" id="volumeSlider" min="0" max="10" value="7" style="width:90px;"></div>
+                        <button class="small-btn" id="resetSaveBtn" style="width:100%;">重置存档</button>
+                        <div id="resetFeedback" style="color:#5cf25c;font-size:7px;text-align:center;margin-top:4px;display:none;">存档已清除</div>
+                    </div>
+                </div>
+                <div class="about-room" id="aboutRoom">
+                    <div style="color:#fde8b5;font-size:12px;">关 于 · 裂 隙 回 响</div>
+                    <div class="room-scene"><div class="wall"></div><div class="floor"></div>
+                        <input type="radio" name="room-item" id="r-none" class="scene-radio" checked>
+                        <input type="radio" name="room-item" id="r-pc" class="scene-radio"><input type="radio" name="room-item" id="r-photo" class="scene-radio"><input type="radio" name="room-item" id="r-bookshelf" class="scene-radio"><input type="radio" name="room-item" id="r-window" class="scene-radio">
+                        <label for="r-pc" class="interactive computer"></label><label for="r-photo" class="interactive photo-frame"></label><label for="r-bookshelf" class="interactive bookshelf"><span class="book"></span><span class="book"></span><span class="book"></span><span class="book"></span></label><div class="window"></div><label for="r-window" class="interactive window" style="background:transparent;border:none;"></label>
+                        <div class="info-bubble pc-info"><label for="r-none" class="bubble-close">✕</label><strong>► 老旧终端</strong><br>版本: v1.0.0<br>开发者: 与君</div>
+                        <div class="info-bubble photo-info"><label for="r-none" class="bubble-close">✕</label><strong>► 像素合影</strong><br>我没想好写啥文案</div>
+                        <div class="info-bubble bookshelf-info"><label for="r-none" class="bubble-close">✕</label><strong>► 灵感书架</strong><br>《CRT维修手册》<br>《点阵字体入门》</div>
+                        <div class="info-bubble window-info"><label for="r-none" class="bubble-close">✕</label><strong>► 窗外</strong><br>数据之海，紫色月光</div>
+                    </div>
+                    <button class="small-btn" id="closeAboutRoom">◀ 返回</button>
+                </div>
+            </div>
+            <div class="page game-page hidden" id="gamePage">
+                <div class="hud">
+                    <div class="hud-item">
+                        <span class="score-label">裂隙深度</span>
+                        <span class="score-value" id="scoreDisplay">0</span>
+                    </div>
+                    <span class="total-popup" id="totalPopup"></span>
+                    <div class="hud-item"><span>⚡</span><span class="steps-display" id="stepsDisplay">步数 24</span></div>
+                    <span class="combo-indicator" id="comboIndicator">✧ 连消 x1 ✧</span>
+                    <span class="rainbow-hint" id="rainbowHint">🎯 选择颜色</span>
+                    <span class="glitch-warning" id="glitchWarning">⚠️ 坏点侵蚀</span>
+                </div>
+                <div class="board-container"><div class="board" id="board"></div></div>
+                <div class="item-belt">
+                    <div class="item-slot">🔒</div><div class="item-slot">🔒</div><div class="item-slot">🔒</div><div class="item-slot">🔒</div>
+                    <button class="back-btn" id="backToMenuBtn">◀ 返回</button>
+                </div>
+                <div class="game-over-overlay" id="gameOverOverlay">
+                    <div class="game-over-panel"><div class="game-over-text">裂隙闭合</div><div class="game-over-score" id="gameOverScore">最终得分: 0</div><button class="restart-btn" id="restartBtn">再次探索</button><button class="menu-return-btn" id="menuReturnBtn">返回主菜单</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function(){
+            const menuPage=document.getElementById('menuPage'),gamePage=document.getElementById('gamePage');
+            document.getElementById('startGameBtn').addEventListener('click',()=>{clearGameState();menuPage.classList.add('hidden');gamePage.classList.remove('hidden');resetGame();});
+            document.getElementById('backToMenuBtn').addEventListener('click',()=>{gamePage.classList.add('hidden');menuPage.classList.remove('hidden');gameOverOverlay.classList.remove('active');rainbowMode=null;});
+            document.getElementById('menuReturnBtn').addEventListener('click',()=>{gamePage.classList.add('hidden');menuPage.classList.remove('hidden');gameOverOverlay.classList.remove('active');rainbowMode=null;});
+            document.getElementById('continueBtn').addEventListener('click',()=>{if(loadGameState()){menuPage.classList.add('hidden');gamePage.classList.remove('hidden');}else alert('暂无存档');});
+            document.getElementById('announceBtn').addEventListener('click',()=>document.getElementById('announceOverlay').classList.add('active'));
+            document.getElementById('closeAnnounce').addEventListener('click',()=>document.getElementById('announceOverlay').classList.remove('active'));
+            const settingsOverlay=document.getElementById('settingsOverlay');
+            document.getElementById('settingsBtn').addEventListener('click',()=>settingsOverlay.classList.add('active'));
+            document.getElementById('closeSettings').addEventListener('click',()=>settingsOverlay.classList.remove('active'));
+            const volumeSlider=document.getElementById('volumeSlider');volumeSlider.addEventListener('input',()=>localStorage.setItem('gameVolume',volumeSlider.value));if(localStorage.getItem('gameVolume'))volumeSlider.value=localStorage.getItem('gameVolume');
+            const resetSaveBtn=document.getElementById('resetSaveBtn'),resetFeedback=document.getElementById('resetFeedback');
+            resetSaveBtn.addEventListener('click',()=>{if(resetSaveBtn.textContent==='重置存档'){resetSaveBtn.textContent='确定重置？';}else{localStorage.clear();volumeSlider.value=7;resetFeedback.style.display='block';resetSaveBtn.textContent='重置存档';setTimeout(()=>resetFeedback.style.display='none',2000);}});
+            const aboutRoom=document.getElementById('aboutRoom');document.getElementById('aboutBtn').addEventListener('click',()=>{aboutRoom.classList.add('active');document.getElementById('r-none').checked=true;});document.getElementById('closeAboutRoom').addEventListener('click',()=>aboutRoom.classList.remove('active'));
+
+            const ROWS=8,COLS=8,COLORS=5,COLOR_CLASSES=['red','blue','green','yellow','purple'];
+            const TYPE_GLITCH=-2,TYPE_SPECIAL=-3,TYPE_RAINBOW=-4,TOTAL_STEPS=24;
+            const GLITCH_SPAWN_INTERVAL = 5;
+            let board,score,stepsLeft,selectedRow=-1,selectedCol=-1,isProcessing=false,comboCount=0,gameOver=false,newSpawnCells=[],rainbowMode=null;
+            let stepsSinceLastGlitch = 0;
+            const boardEl=document.getElementById('board'),scoreDisplay=document.getElementById('scoreDisplay'),stepsDisplay=document.getElementById('stepsDisplay'),comboIndicator=document.getElementById('comboIndicator'),gameOverOverlay=document.getElementById('gameOverOverlay'),gameOverScore=document.getElementById('gameOverScore'),rainbowHint=document.getElementById('rainbowHint'),glitchWarning=document.getElementById('glitchWarning'),totalPopup=document.getElementById('totalPopup'),SAVE_KEY='riftEchoSave';
+
+            let popupTimer = null;
+            function showTotalPopup(delta) {
+                if (delta === 0) return;
+                totalPopup.textContent = (delta > 0 ? '+' : '') + delta;
+                totalPopup.classList.remove('negative');
+                if (delta < 0) totalPopup.classList.add('negative');
+                totalPopup.style.display = 'block';
+                if (popupTimer) clearTimeout(popupTimer);
+                popupTimer = setTimeout(() => { totalPopup.style.display = 'none'; }, 1500);
+            }
+
+            function addScore(delta) {
+                if (delta < 0) { score = Math.max(0, score + delta); }
+                else { score += delta; }
+                scoreDisplay.textContent = score.toLocaleString();
+            }
+
+            function saveGameState(){localStorage.setItem(SAVE_KEY,JSON.stringify({board,score,stepsLeft,stepsSinceLastGlitch}));}
+            function loadGameState(){const saved=localStorage.getItem(SAVE_KEY);if(!saved)return false;try{const state=JSON.parse(saved);if(state.board&&Array.isArray(state.board)&&state.board.length===ROWS){board=state.board;score=state.score;stepsLeft=state.stepsLeft;stepsSinceLastGlitch=state.stepsSinceLastGlitch||0;selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;scoreDisplay.textContent=score.toLocaleString();stepsDisplay.textContent='步数 '+stepsLeft;stepsDisplay.classList.toggle('warning',stepsLeft<=6);comboIndicator.classList.remove('show');rainbowHint.classList.remove('show');glitchWarning.classList.remove('show');gameOverOverlay.classList.remove('active');renderBoard();return true;}}catch(e){}return false;}
+            function clearGameState(){localStorage.removeItem(SAVE_KEY);}
+            function initBoard(){board=Array.from({length:ROWS},()=>Array(COLS).fill(0));for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){let color;do{color=Math.floor(Math.random()*COLORS);}while(wouldMatch(r,c,color));board[r][c]=color;}}
+            function wouldMatch(r,c,color){if(color<0)return false;if(c>=2&&board[r][c-1]===color&&board[r][c-2]===color)return true;if(r>=2&&board[r-1]&&board[r-1][c]===color&&board[r-2]&&board[r-2][c]===color)return true;return false;}
+            function resetGame(){initBoard();score=0;stepsLeft=TOTAL_STEPS;stepsSinceLastGlitch=0;selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;scoreDisplay.textContent='0';stepsDisplay.textContent='步数 '+stepsLeft;stepsDisplay.classList.remove('warning');comboIndicator.classList.remove('show');rainbowHint.classList.remove('show');glitchWarning.classList.remove('show');gameOverOverlay.classList.remove('active');renderBoard();clearGameState();}
+
+            function countGlitchOnBoard(){
+                let count=0;
+                for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(board[r][c]===TYPE_GLITCH)count++;
+                return count;
+            }
+            function spawnRandomGlitch(){
+                const empties = [];
+                for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(board[r][c]>=0&&board[r][c]<COLORS) empties.push({r,c});
+                if(empties.length > 0){ const pos = empties[Math.floor(Math.random()*empties.length)]; board[pos.r][pos.c] = TYPE_GLITCH; return true; }
+                return false;
+            }
+            function getCellClass(val){if(val===TYPE_GLITCH)return'glitch';if(val===TYPE_SPECIAL)return'special';if(val===TYPE_RAINBOW)return'rainbow';if(val>=0&&val<COLORS)return COLOR_CLASSES[val];return'';}
+            function renderBoard(){
+                boardEl.innerHTML='';
+                for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+                    const cell=document.createElement('div');
+                    cell.className='cell '+getCellClass(board[r][c]);
+                    if(r===selectedRow&&c===selectedCol)cell.classList.add('selected');
+                    if(rainbowMode&&r===rainbowMode.r&&c===rainbowMode.c)cell.classList.add('rainbow-selected');
+                    if(newSpawnCells.some(n=>n.r===r&&n.c===c))cell.classList.add('new-spawn');
+                    cell.dataset.row=r;cell.dataset.col=c;
+                    cell.addEventListener('click',()=>handleCellClick(r,c));
+                    cell.addEventListener('touchstart',(e)=>{e.preventDefault();handleCellClick(r,c);});
+                    boardEl.appendChild(cell);
+                }
+                setTimeout(()=>newSpawnCells=[],300);
+            }
+            function handleCellClick(row,col){
+                if(isProcessing||gameOver)return;
+                const val=board[row][col];
+                if(rainbowMode){
+                    if(val>=0&&val<COLORS){ triggerRainbow(rainbowMode.r,rainbowMode.c,val); }
+                    else{ rainbowMode=null; rainbowHint.classList.remove('show'); renderBoard(); }
+                    return;
+                }
+                if(val===TYPE_GLITCH)return;
+                if(val===TYPE_RAINBOW){ rainbowMode={r:row,c:col}; rainbowHint.classList.add('show'); selectedRow=selectedCol=-1; renderBoard(); return; }
+                if(val===TYPE_SPECIAL){ triggerSpecial(row,col); return; }
+                if(selectedRow===-1){ selectedRow=row; selectedCol=col; renderBoard(); }
+                else if(selectedRow===row&&selectedCol===col){ selectedRow=selectedCol=-1; renderBoard(); }
+                else if(Math.abs(selectedRow-row)+Math.abs(selectedCol-col)===1){ const sr=selectedRow,sc=selectedCol; selectedRow=selectedCol=-1; trySwap(sr,sc,row,col); }
+                else{ selectedRow=row; selectedCol=col; renderBoard(); }
+            }
+
+            // 像素崩解效果：在cell上创建碎片并播放动画
+            function shatterCell(cell) {
+                if (!cell || cell.classList.contains('shattering')) return;
+                cell.classList.add('shattering');
+                const colorClass = Array.from(cell.classList).find(c => COLOR_CLASSES.includes(c) || c === 'glitch' || c === 'special' || c === 'rainbow');
+                // 创建4个碎片
+                for (let i = 1; i <= 4; i++) {
+                    const shard = document.createElement('div');
+                    shard.className = 'shard';
+                    shard.style.animation = `shard${i} 0.4s ease-out forwards`;
+                    if (colorClass) {
+                        // 复制背景和伪元素内容到碎片上（简化：直接设置颜色）
+                        const computedColor = getComputedStyle(cell, '::before').color;
+                        shard.style.backgroundColor = computedColor || '#fff';
+                    }
+                    cell.appendChild(shard);
+                }
+                // 动画结束后移除碎片和shattering类
+                setTimeout(() => {
+                    cell.querySelectorAll('.shard').forEach(s => s.remove());
+                    cell.classList.remove('shattering');
+                }, 400);
+            }
+
+            async function triggerRainbow(r,c,color){
+                if(isProcessing||gameOver)return;
+                const startScore = score;
+                isProcessing=true; rainbowMode=null; rainbowHint.classList.remove('show');
+                const toClear=[{r,c}];
+                for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++)if(board[rr][cc]===color)toClear.push({r:rr,c:cc});
+                boardEl.querySelectorAll('.cell').forEach(cell=>{
+                    const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);
+                    if(toClear.some(p=>p.r===rr&&p.c===cc)) shatterCell(cell);
+                });
+                await sleep(400);
+                let clearCount = 0;
+                for(const pos of toClear){ if(board[pos.r][pos.c]>=0){ clearCount++; } board[pos.r][pos.c]=-1; }
+                addScore(clearCount * 10 + 50);
+                applyGravityAndSpawn(); renderBoard();
+                await processChain();
+                saveGameState(); if(stepsLeft<=0)endGame();
+                showTotalPopup(score - startScore);
+                isProcessing=false; renderBoard();
+            }
+
+            async function triggerSpecial(row,col){
+                if(isProcessing||gameOver)return;
+                const startScore = score;
+                isProcessing=true;
+                const layers = [], visitedSpecials = new Set();
+                const firstLayer = new Set(); firstLayer.add(row*COLS+col); visitedSpecials.add(row*COLS+col); layers.push(firstLayer);
+                let currentLayer = firstLayer;
+                while(currentLayer.size > 0){
+                    const nextLayer = new Set();
+                    for(const idx of currentLayer){
+                        const r = Math.floor(idx/COLS), c = idx%COLS;
+                        for(let dr=-1; dr<=1; dr++) for(let dc=-1; dc<=1; dc++){
+                            const nr = r+dr, nc = c+dc;
+                            if(nr>=0 && nr<ROWS && nc>=0 && nc<COLS){
+                                const nKey = nr*COLS+nc;
+                                if((board[nr][nc]===TYPE_SPECIAL || board[nr][nc]===TYPE_RAINBOW) && !visitedSpecials.has(nKey)){
+                                    visitedSpecials.add(nKey); nextLayer.add(nKey);
+                                }
+                            }
+                        }
+                    }
+                    if(nextLayer.size > 0) layers.push(nextLayer);
+                    currentLayer = nextLayer;
+                }
+                for(const layer of layers){
+                    const cellsToAnimate = new Set();
+                    for(const idx of layer){
+                        const r = Math.floor(idx/COLS), c = idx%COLS;
+                        for(let dr=-1; dr<=1; dr++) for(let dc=-1; dc<=1; dc++){
+                            const nr = r+dr, nc = c+dc;
+                            if(nr>=0 && nr<ROWS && nc>=0 && nc<COLS) cellsToAnimate.add(nr*COLS+nc);
+                        }
+                    }
+                    boardEl.querySelectorAll('.cell').forEach(cell => {
+                        const cr = parseInt(cell.dataset.row), cc = parseInt(cell.dataset.col);
+                        if(cellsToAnimate.has(cr*COLS+cc)) shatterCell(cell);
+                    });
+                    await sleep(400);
+                    let layerScore = 0;
+                    for(const idx of layer){
+                        const r = Math.floor(idx/COLS), c = idx%COLS;
+                        if(board[r][c] === TYPE_SPECIAL) layerScore += 30;
+                        else if(board[r][c] === TYPE_RAINBOW) layerScore += 50;
+                        for(let dr=-1; dr<=1; dr++) for(let dc=-1; dc<=1; dc++){
+                            const nr = r+dr, nc = c+dc;
+                            if(nr>=0 && nr<ROWS && nc>=0 && nc<COLS && board[nr][nc] !== -1){
+                                if(board[nr][nc] >= 0) layerScore += 10;
+                                board[nr][nc] = -1;
+                            }
+                        }
+                    }
+                    addScore(layerScore);
+                    applyGravityAndSpawn(); renderBoard(); await sleep(150);
+                }
+                await processChain();
+                saveGameState(); if(stepsLeft <= 0) endGame();
+                showTotalPopup(score - startScore);
+                isProcessing = false; renderBoard();
+            }
+
+            async function trySwap(r1,c1,r2,c2){
+                isProcessing=true; 
+                const startScore = score;
+                [board[r1][c1],board[r2][c2]]=[board[r2][c2],board[r1][c1]]; renderBoard();
+                const matchData=findMatches();
+                if(matchData.matched.size===0){ 
+                    await sleep(180); 
+                    [board[r1][c1],board[r2][c2]]=[board[r2][c2],board[r1][c1]]; renderBoard(); 
+                    isProcessing=false; return; 
+                }
+                stepsLeft--; stepsDisplay.textContent='步数 '+stepsLeft; if(stepsLeft<=6)stepsDisplay.classList.add('warning');
+                comboCount=0; 
+                await processMatches(matchData);
+                const glitchCount = countGlitchOnBoard();
+                if(glitchCount > 0){
+                    addScore(-(glitchCount * 5));
+                    glitchWarning.textContent = '⚠️ 坏点侵蚀 -'+(glitchCount*5);
+                    glitchWarning.classList.add('show');
+                    setTimeout(()=>glitchWarning.classList.remove('show'), 800);
+                }
+                stepsSinceLastGlitch++;
+                if(stepsSinceLastGlitch >= GLITCH_SPAWN_INTERVAL){
+                    stepsSinceLastGlitch = 0;
+                    spawnRandomGlitch();
+                }
+                saveGameState(); 
+                if(stepsLeft<=0) endGame();
+                showTotalPopup(score - startScore);
+                isProcessing=false; renderBoard();
+            }
+
+            function findMatches(){
+                const matched=new Set(), hSegments=[], vSegments=[];
+                for(let r=0;r<ROWS;r++){ let c=0; while(c<COLS){ if(board[r][c]<0){c++;continue;} const color=board[r][c]; let end=c; while(end+1<COLS&&board[r][end+1]===color)end++; const len=end-c+1; if(len>=3){ for(let i=c;i<=end;i++)matched.add(r*COLS+i); hSegments.push({r,cStart:c,cEnd:end}); } c=end+1; } }
+                for(let c=0;c<COLS;c++){ let r=0; while(r<ROWS){ if(board[r][c]<0){r++;continue;} const color=board[r][c]; let end=r; while(end+1<ROWS&&board[end+1][c]===color)end++; const len=end-r+1; if(len>=3){ for(let i=r;i<=end;i++)matched.add(i*COLS+c); vSegments.push({c,rStart:r,rEnd:end}); } r=end+1; } }
+                const matchLengths=[];
+                for(const seg of hSegments){ const len=seg.cEnd-seg.cStart+1; if(len===4)matchLengths.push({r:seg.r,c:Math.floor((seg.cStart+seg.cEnd)/2),type:'straight4'}); else if(len>=5)matchLengths.push({r:seg.r,c:Math.floor((seg.cStart+seg.cEnd)/2),type:'straight5'}); }
+                for(const seg of vSegments){ const len=seg.rEnd-seg.rStart+1; if(len===4)matchLengths.push({r:Math.floor((seg.rStart+seg.rEnd)/2),c:seg.c,type:'straight4'}); else if(len>=5)matchLengths.push({r:Math.floor((seg.rStart+seg.rEnd)/2),c:seg.c,type:'straight5'}); }
+                const hSet=new Set(); 
+                for(const seg of hSegments){ for(let c=seg.cStart;c<=seg.cEnd;c++)hSet.add(seg.r*COLS+c); }
+                const crossPoints=[];
+                for(const seg of vSegments){ for(let r=seg.rStart;r<=seg.rEnd;r++){ const key=r*COLS+seg.c; if(hSet.has(key)) crossPoints.push({r,c:seg.c}); } }
+                const processedCross = new Set();
+                for(const pt of crossPoints){
+                    const key = pt.r*COLS+pt.c;
+                    if(processedCross.has(key)) continue;
+                    processedCross.add(key);
+                    const hSeg2 = hSegments.find(s => s.r === pt.r && pt.c >= s.cStart && pt.c <= s.cEnd);
+                    const vSeg2 = vSegments.find(s => s.c === pt.c && pt.r >= s.rStart && pt.r <= s.rEnd);
+                    if(!hSeg2 || !vSeg2) continue;
+                    const hLen = hSeg2.cEnd - hSeg2.cStart + 1;
+                    const vLen = vSeg2.rEnd - vSeg2.rStart + 1;
+                    const isHEnd = (pt.c === hSeg2.cStart || pt.c === hSeg2.cEnd);
+                    const isVEnd = (pt.r === vSeg2.rStart || pt.r === vSeg2.rEnd);
+                    // 大T型判定
+                    if(hLen >= 5 && vLen >= 3 && !isHEnd && !isVEnd){
+                        const hMid = Math.floor((hSeg2.cStart + hSeg2.cEnd) / 2);
+                        if(pt.c >= hMid - 1 && pt.c <= hMid + 1){
+                            matchLengths.push({r:pt.r, c:pt.c, type:'bigT'});
+                            continue;
+                        }
+                    }
+                    // 普通T型或L型都生成特殊块
+                    matchLengths.push({r:pt.r, c:pt.c, type:'cross'});
+                }
+                return {matched, matchLengths};
+            }
+
+            function spawnSpecials(matchLengths){
+                for(const m of matchLengths){
+                    if(m.type === 'bigT'){
+                        const midR=m.r, midC=m.c;
+                        const positions=[];
+                        for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){ const nr=midR+dr,nc=midC+dc; if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)positions.push({r:nr,c:nc}); }
+                        let placed=0;
+                        for(const pos of positions){ if(placed>=2) break; board[pos.r][pos.c] = TYPE_RAINBOW; placed++; }
+                        if(placed<2 && board[midR][midC]===-1){ board[midR][midC] = TYPE_RAINBOW; }
+                    } else if(m.type === 'straight5'){
+                        const midR=m.r, midC=m.c;
+                        if(board[midR][midC]===-1) board[midR][midC] = TYPE_RAINBOW;
+                        else{ const positions=[]; for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){ const nr=midR+dr,nc=midC+dc; if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)positions.push({r:nr,c:nc}); } if(positions.length>0) board[positions[0].r][positions[0].c] = TYPE_RAINBOW; }
+                    } else {
+                        const midR=m.r, midC=m.c;
+                        if(board[midR][midC]===-1) board[midR][midC] = TYPE_SPECIAL;
+                        else{ const positions=[]; for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){ const nr=midR+dr,nc=midC+dc; if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)positions.push({r:nr,c:nc}); } if(positions.length>0) board[positions[0].r][positions[0].c] = TYPE_SPECIAL; }
+                    }
+                }
+            }
+            function clearMatchedAndAdjacentGlitch(matchedSet){
+                const toClear=new Set(matchedSet);
+                for(const idx of matchedSet){ const r=Math.floor(idx/COLS),c=idx%COLS; [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc])=>{ if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===TYPE_GLITCH)toClear.add(nr*COLS+nc); }); }
+                return toClear;
+            }
+            async function processMatches(matchData){
+                let{matched,matchLengths}=matchData;
+                while(matched.size>0){
+                    comboCount++;
+                    if(comboCount>=2){ comboIndicator.textContent='✧ 连消 x'+comboCount+' ✧'; comboIndicator.classList.add('show'); }
+                    const toClear=clearMatchedAndAdjacentGlitch(matched);
+                    addScore(matched.size*10 + (comboCount-1)*20);
+                    document.querySelectorAll('.cell').forEach(c=>{
+                        if(toClear.has(parseInt(c.dataset.row)*COLS+parseInt(c.dataset.col))) shatterCell(c);
+                    });
+                    // 连锁加速：等待时间随连消次数递减
+                    const delay = Math.max(150, 380 - comboCount * 40);
+                    await sleep(delay);
+                    for(const idx of toClear)board[Math.floor(idx/COLS)][idx%COLS]=-1;
+                    spawnSpecials(matchLengths); applyGravityAndSpawn(); renderBoard();
+                    await sleep(150);
+                    const next=findMatches(); matched=next.matched; matchLengths=next.matchLengths;
+                }
+                comboIndicator.classList.remove('show');
+            }
+            function applyGravityAndSpawn(){
+                for(let c=0;c<COLS;c++){ let wr=ROWS-1; for(let r=ROWS-1;r>=0;r--)if(board[r][c]!==-1)board[wr--][c]=board[r][c]; for(let r=wr;r>=0;r--)board[r][c]=-1; }
+                newSpawnCells=[]; for(let c=0;c<COLS;c++)for(let r=0;r<ROWS;r++)if(board[r][c]===-1){ board[r][c]=Math.floor(Math.random()*COLORS); newSpawnCells.push({r,c}); }
+            }
+            async function processChain(){
+                let data=findMatches();
+                while(data.matched.size>0){
+                    comboCount++;
+                    if(comboCount>=2){ comboIndicator.textContent='✧ 连消 x'+comboCount+' ✧'; comboIndicator.classList.add('show'); }
+                    const toClear=clearMatchedAndAdjacentGlitch(data.matched);
+                    addScore(data.matched.size*10 + (comboCount-1)*20);
+                    document.querySelectorAll('.cell').forEach(c=>{
+                        if(toClear.has(parseInt(c.dataset.row)*COLS+parseInt(c.dataset.col))) shatterCell(c);
+                    });
+                    const delay = Math.max(120, 380 - comboCount * 45);
+                    await sleep(delay);
+                    for(const idx of toClear)board[Math.floor(idx/COLS)][idx%COLS]=-1;
+                    spawnSpecials(data.matchLengths); applyGravityAndSpawn(); renderBoard();
+                    await sleep(120);
+                    data=findMatches();
+                }
+                comboIndicator.classList.remove('show');
+            }
+            function endGame(){ gameOver=true; gameOverScore.textContent='最终得分: '+score.toLocaleString(); gameOverOverlay.classList.add('active'); clearGameState(); renderBoard(); }
+            function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+            document.getElementById('restartBtn').addEventListener('click',()=>{ clearGameState(); resetGame(); });
+
+            initBoard(); renderBoard();
+        })();
+    </script>
+</body>
+</html>
