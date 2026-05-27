@@ -101,6 +101,21 @@
         }
         .popup-close { position:absolute; top:2px; right:8px; background:none; border:none; color:#ff6161; font-size:12px; cursor:pointer; }
 
+        /* ==================== 图鉴专用样式 ==================== */
+        .compendium-box { max-width:360px; width:90%; max-height:80%; overflow-y:auto; padding:10px; }
+        .comp-tabs { display:flex; gap:8px; margin-bottom:8px; }
+        .comp-tab { font-family:'Press Start 2P',monospace; font-size:7px; background:#2a1f35; border:2px solid #6b5c7a; color:#fde8b5; padding:4px 8px; cursor:pointer; flex:1; }
+        .comp-tab.active { background:#5a2d8a; border-color:#c77dff; }
+        .comp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+        .comp-item { background:#19132b; border:2px solid #4a3d5c; padding:6px 4px; text-align:center; cursor:pointer; font-size:6px; color:#cbbae0; transition:0.06s; }
+        .comp-item.obtained { border-color:#ffd700; box-shadow:0 0 6px #ffd700; color:#fde8b5; }
+        .comp-item .item-icon { font-size:18px; display:block; margin-bottom:2px; }
+        .comp-detail { margin-top:8px; background:#0f0e1a; border:2px solid #c77dff; padding:8px; font-size:6px; display:none; text-align:left; }
+        .comp-detail.show { display:block; }
+        .comp-detail .detail-name { font-size:8px; color:#ffd966; }
+        .comp-detail .detail-type { font-size:6px; color:#9b8ab8; margin:2px 0; }
+        .comp-detail .detail-desc { font-size:6px; color:#fde8b5; line-height:1.4; }
+
         /* ==================== 关于房间 ==================== */
         .about-room { position:absolute; top:0; left:0; width:100%; height:100%; background:#12101c; z-index:45; display:none; flex-direction:column; align-items:center; padding:12px; gap:8px; }
         .about-room.active { display:flex; }
@@ -294,12 +309,12 @@
                 <div class="menu-buttons">
                     <button class="menu-btn primary" id="startGameBtn">开 始 游 戏</button>
                     <button class="menu-btn" id="continueBtn">继 续 探 索</button>
-                    <button class="menu-btn">道 具 图 鉴</button>
+                    <button class="menu-btn" id="compendiumBtn">道 具 图 鉴</button>
                 </div>
                 <div class="small-btns"><button class="small-btn" id="settingsBtn">设 定</button><button class="small-btn" id="aboutBtn">关 于</button></div>
-                <span class="version-text">ver 2.0.0</span>
+                <span class="version-text">ver 2.1.0</span>
                 <div class="announcement-btn" id="announceBtn">📢 公告</div>
-                <div class="popup-overlay" id="announceOverlay"><div class="popup-box"><span class="popup-close" id="closeAnnounce">✕</span><p>新加入了关卡和道具系统</p></div></div>
+                <div class="popup-overlay" id="announceOverlay"><div class="popup-box"><span class="popup-close" id="closeAnnounce">✕</span><p>2026年5月27日——实装了道具图鉴按钮的功能，并加入了声音，<br>同时修改了“特殊块生成”道具的效果<br>12->30<br>2026年5月26日——新加入了关卡和道具系统<br>2026年5月22日——裂隙回响测试版推出</p></div></div>
                 <div class="popup-overlay" id="settingsOverlay">
                     <div class="popup-box" style="text-align:left;">
                         <span class="popup-close" id="closeSettings">✕</span>
@@ -308,14 +323,27 @@
                         <div id="resetFeedback" style="color:#5cf25c;font-size:7px;text-align:center;margin-top:4px;display:none;">存档已清除</div>
                     </div>
                 </div>
+                <!-- 道具图鉴弹窗 -->
+                <div class="popup-overlay" id="compendiumOverlay">
+                    <div class="popup-box compendium-box">
+                        <span class="popup-close" id="closeCompendium">✕</span>
+                        <div class="comp-tabs">
+                            <button class="comp-tab active" data-type="all">全部</button>
+                            <button class="comp-tab" data-type="active">主动</button>
+                            <button class="comp-tab" data-type="passive">被动</button>
+                        </div>
+                        <div class="comp-grid" id="compGrid"></div>
+                        <div class="comp-detail" id="compDetail"></div>
+                    </div>
+                </div>
                 <div class="about-room" id="aboutRoom">
                     <div style="color:#fde8b5;font-size:12px;">关 于 · 裂 隙 回 响</div>
                     <div class="room-scene"><div class="wall"></div><div class="floor"></div>
                         <input type="radio" name="room-item" id="r-none" class="scene-radio" checked>
                         <input type="radio" name="room-item" id="r-pc" class="scene-radio"><input type="radio" name="room-item" id="r-photo" class="scene-radio"><input type="radio" name="room-item" id="r-bookshelf" class="scene-radio"><input type="radio" name="room-item" id="r-window" class="scene-radio">
                         <label for="r-pc" class="interactive computer"></label><label for="r-photo" class="interactive photo-frame"></label><label for="r-bookshelf" class="interactive bookshelf"><span class="book"></span><span class="book"></span><span class="book"></span><span class="book"></span></label><div class="window"></div><label for="r-window" class="interactive window" style="background:transparent;border:none;"></label>
-                        <div class="info-bubble pc-info"><label for="r-none" class="bubble-close">✕</label><strong>► 老旧终端</strong><br>版本: v2.0.0<br>开发者: 与君</div>
-                        <div class="info-bubble photo-info"><label for="r-none" class="bubble-close">✕</label><strong>► 像素合影</strong><br>我没想好写啥文案</div>
+                        <div class="info-bubble pc-info"><label for="r-none" class="bubble-close">✕</label><strong>► 老旧终端</strong><br>版本: v2.1.0<br>开发者: 与君</div>
+                        <div class="info-bubble photo-info"><label for="r-none" class="bubble-close">✕</label><strong>► 像素合影</strong><br>依稀可以看到你和其他人的身影...</div>
                         <div class="info-bubble bookshelf-info"><label for="r-none" class="bubble-close">✕</label><strong>► 灵感书架</strong><br>《CRT维修手册》<br>《点阵字体入门》</div>
                         <div class="info-bubble window-info"><label for="r-none" class="bubble-close">✕</label><strong>► 窗外</strong><br>数据之海，紫色月光</div>
                     </div>
@@ -383,9 +411,66 @@
             const gameScreen=document.getElementById('gameScreen');
             const SAVE_KEY='riftEchoSave';
 
+            // ==================== 音效引擎 ====================
+            const SoundEngine = {
+                ctx: null,
+                gainNode: null,
+                init() {
+                    if (this.ctx) return;
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    this.gainNode = this.ctx.createGain();
+                    this.gainNode.gain.value = (parseInt(localStorage.getItem('gameVolume')||7))/10;
+                    this.gainNode.connect(this.ctx.destination);
+                },
+                setVolume(val) { if (this.gainNode) this.gainNode.gain.value = val/10; },
+                play(type) {
+                    this.init();
+                    const t = this.ctx.currentTime;
+                    const g = this.gainNode;
+                    const osc = (freq, wave='square', start, dur, gain=0.15) => {
+                        const o = this.ctx.createOscillator();
+                        o.type = wave; o.frequency.value = freq;
+                        const gn = this.ctx.createGain();
+                        gn.gain.setValueAtTime(gain, start);
+                        gn.gain.exponentialRampToValueAtTime(0.0001, start+dur);
+                        o.connect(gn); gn.connect(g); o.start(start); o.stop(start+dur);
+                    };
+                    const noise = (start, dur, gain=0.1) => {
+                        const bufferSize = 44100 * dur;
+                        const buffer = this.ctx.createBuffer(1, bufferSize, 44100);
+                        const data = buffer.getChannelData(0);
+                        for (let i=0;i<bufferSize;i++) data[i]=Math.random()*2-1;
+                        const src = this.ctx.createBufferSource();
+                        src.buffer = buffer;
+                        const gn = this.ctx.createGain();
+                        gn.gain.setValueAtTime(gain, start);
+                        gn.gain.exponentialRampToValueAtTime(0.0001, start+dur);
+                        src.connect(gn); gn.connect(g); src.start(start); src.stop(start+dur);
+                    };
+                    switch(type) {
+                        case 'select': osc(800,'square',t,0.06); break;
+                        case 'swap': noise(t,0.06,0.08); break;
+                        case 'match3': osc(600,'square',t,0.08); osc(1200,'square',t+0.02,0.1,0.1); break;
+                        case 'combo': osc(800+comboCount*150,'square',t,0.08,0.12); break;
+                        case 'special': osc(200,'triangle',t,0.1,0.12); noise(t,0.15,0.08); break;
+                        case 'rainbow': osc(523,'square',t,0.08); osc(659,'square',t+0.06,0.08); osc(784,'square',t+0.12,0.08); osc(1047,'square',t+0.18,0.12,0.1); break;
+                        case 'resonance': noise(t,0.3,0.15); osc(150,'triangle',t,0.4,0.12); break;
+                        case 'glitch_spawn': osc(100,'sawtooth',t,0.1,0.08); noise(t,0.1,0.08); break;
+                        case 'glitch_penalty': osc(150,'square',t,0.15,0.1); break;
+                        case 'level_complete': osc(523,'square',t,0.1); osc(659,'square',t+0.1,0.1); osc(784,'square',t+0.2,0.15,0.12); break;
+                        case 'game_over': osc(784,'square',t,0.12); osc(659,'square',t+0.12,0.12); osc(523,'square',t+0.24,0.15,0.12); break;
+                        case 'item_get': osc(800,'square',t,0.06); osc(1200,'square',t+0.04,0.1,0.1); break;
+                        case 'item_use': osc(600,'square',t,0.06); osc(900,'square',t+0.03,0.08,0.1); break;
+                        case 'button': osc(400,'square',t,0.05); break;
+                        default: break;
+                    }
+                }
+            };
+
             // ==================== 页面切换事件 ====================
-            document.getElementById('startGameBtn').addEventListener('click',()=>{clearGameState();menuPage.classList.add('hidden');gamePage.classList.remove('hidden');startNewGame();});
+            document.getElementById('startGameBtn').addEventListener('click',()=>{SoundEngine.play('button');clearGameState();menuPage.classList.add('hidden');gamePage.classList.remove('hidden');startNewGame();});
             document.getElementById('backToMenuBtn').addEventListener('click',()=>{
+                SoundEngine.play('button');
                 gamePage.classList.add('hidden');menuPage.classList.remove('hidden');
                 gameOverOverlay.classList.remove('active');rainbowMode=null;
                 crtMonitor.classList.remove('mirrored','filtered');
@@ -393,29 +478,97 @@
                 const dots=gameScreen.querySelectorAll('.visual-glitch-dot');dots.forEach(d=>d.remove());
             });
             document.getElementById('menuReturnBtn').addEventListener('click',()=>{
+                SoundEngine.play('button');
                 gamePage.classList.add('hidden');menuPage.classList.remove('hidden');
                 gameOverOverlay.classList.remove('active');rainbowMode=null;
                 crtMonitor.classList.remove('mirrored','filtered');
                 if(visualGlitchInterval)clearInterval(visualGlitchInterval);
                 const dots=gameScreen.querySelectorAll('.visual-glitch-dot');dots.forEach(d=>d.remove());
             });
-            document.getElementById('continueBtn').addEventListener('click',()=>{if(loadGameState()){menuPage.classList.add('hidden');gamePage.classList.remove('hidden');}else alert('暂无存档');});
+            document.getElementById('continueBtn').addEventListener('click',()=>{SoundEngine.play('button');if(loadGameState()){menuPage.classList.add('hidden');gamePage.classList.remove('hidden');}else alert('暂无存档');});
 
             // ==================== 公告弹窗 ====================
-            document.getElementById('announceBtn').addEventListener('click',()=>document.getElementById('announceOverlay').classList.add('active'));
+            document.getElementById('announceBtn').addEventListener('click',()=>{SoundEngine.play('button');document.getElementById('announceOverlay').classList.add('active');});
             document.getElementById('closeAnnounce').addEventListener('click',()=>document.getElementById('announceOverlay').classList.remove('active'));
 
             // ==================== 设定面板 ====================
             const settingsOverlay=document.getElementById('settingsOverlay');
-            document.getElementById('settingsBtn').addEventListener('click',()=>settingsOverlay.classList.add('active'));
+            document.getElementById('settingsBtn').addEventListener('click',()=>{SoundEngine.play('button');settingsOverlay.classList.add('active');});
             document.getElementById('closeSettings').addEventListener('click',()=>settingsOverlay.classList.remove('active'));
-            const volumeSlider=document.getElementById('volumeSlider');volumeSlider.addEventListener('input',()=>localStorage.setItem('gameVolume',volumeSlider.value));if(localStorage.getItem('gameVolume'))volumeSlider.value=localStorage.getItem('gameVolume');
+            const volumeSlider=document.getElementById('volumeSlider');volumeSlider.addEventListener('input',()=>{localStorage.setItem('gameVolume',volumeSlider.value);SoundEngine.setVolume(volumeSlider.value);});if(localStorage.getItem('gameVolume'))volumeSlider.value=localStorage.getItem('gameVolume');
             const resetSaveBtn=document.getElementById('resetSaveBtn'),resetFeedback=document.getElementById('resetFeedback');
             resetSaveBtn.addEventListener('click',()=>{if(resetSaveBtn.textContent==='重置存档'){resetSaveBtn.textContent='确定重置？';}else{localStorage.clear();volumeSlider.value=7;resetFeedback.style.display='block';resetSaveBtn.textContent='重置存档';setTimeout(()=>resetFeedback.style.display='none',2000);}});
 
+            // ==================== 道具图鉴 ====================
+            const compendiumOverlay=document.getElementById('compendiumOverlay');
+            const compGrid=document.getElementById('compGrid');
+            const compDetail=document.getElementById('compDetail');
+            const compTabs=document.querySelectorAll('.comp-tab');
+            let compFilter='all';
+
+            function loadCompendiumState() {
+                // 从存档中读取已获得道具列表
+                try {
+                    const saved=localStorage.getItem(SAVE_KEY);
+                    if (saved) {
+                        const state=JSON.parse(saved);
+                        return state.obtainedItems || [];
+                    }
+                } catch(e){}
+                return [];
+            }
+
+            function renderCompendium(filter='all') {
+                const obtained = loadCompendiumState();
+                const items = ITEM_POOL.filter(item => {
+                    if (filter === 'all') return true;
+                    return item.type === filter;
+                });
+                compGrid.innerHTML = items.map(item => {
+                    const isObtained = obtained.includes(item.id);
+                    return `<div class="comp-item ${isObtained?'obtained':''}" data-id="${item.id}">
+                        <span class="item-icon">${item.icon}</span>${item.name}
+                    </div>`;
+                }).join('');
+                compDetail.classList.remove('show');
+                // 绑定点击事件
+                compGrid.querySelectorAll('.comp-item').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const id = el.dataset.id;
+                        const item = ITEM_POOL.find(it => it.id === id);
+                        if (item) {
+                            compDetail.innerHTML = `
+                                <div class="detail-name">${item.icon} ${item.name}</div>
+                                <div class="detail-type">类型: ${item.type==='active'?'主动道具':'被动道具'} ${obtained.includes(id)?'✓ 已获得':''}</div>
+                                <div class="detail-desc">${item.desc}</div>
+                            `;
+                            compDetail.classList.add('show');
+                        }
+                    });
+                });
+            }
+
+            document.getElementById('compendiumBtn').addEventListener('click', () => {
+                SoundEngine.play('button');
+                compFilter = 'all';
+                compTabs.forEach(t => t.classList.remove('active'));
+                compTabs[0].classList.add('active');
+                renderCompendium('all');
+                compendiumOverlay.classList.add('active');
+            });
+            document.getElementById('closeCompendium').addEventListener('click', () => compendiumOverlay.classList.remove('active'));
+            compTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    compTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    compFilter = tab.dataset.type;
+                    renderCompendium(compFilter);
+                });
+            });
+
             // ==================== 关于房间 ====================
             const aboutRoom=document.getElementById('aboutRoom');
-            document.getElementById('aboutBtn').addEventListener('click',()=>{aboutRoom.classList.add('active');document.getElementById('r-none').checked=true;});
+            document.getElementById('aboutBtn').addEventListener('click',()=>{SoundEngine.play('button');aboutRoom.classList.add('active');document.getElementById('r-none').checked=true;});
             document.getElementById('closeAboutRoom').addEventListener('click',()=>aboutRoom.classList.remove('active'));
 
             // ==================== 游戏常量 ====================
@@ -431,7 +584,7 @@
                 {id:'recycle',name:'步数回收',icon:'♻️',desc:'消15块恢复1步',type:'passive',effect:()=>{hasRecycle=true;}},
                 {id:'slowrift',name:'慢速裂隙',icon:'🐢',desc:'步数消耗减半',type:'passive',effect:()=>{hasSlowRift=true;}},
                 {id:'prism',name:'彩虹棱镜',icon:'🔮',desc:'点普通块变彩虹+周围特殊块',type:'active',effect:()=>{addBeltItem('prism');}},
-                {id:'specialgen',name:'特殊块生成',icon:'✦',desc:'消12块自动生成特殊块',type:'passive',effect:()=>{hasSpecialGen=true;}},
+                {id:'specialgen',name:'特殊块生成',icon:'✦',desc:'消30块自动生成特殊块',type:'passive',effect:()=>{hasSpecialGen=true;}},
                 {id:'resonance',name:'彩虹共鸣',icon:'🌈',desc:'裂隙共鸣得分×2',type:'passive',effect:()=>{hasResonance=true;}},
                 {id:'chainext',name:'连锁延伸',icon:'💥',desc:'特殊块范围3×3→5×5',type:'passive',effect:()=>{hasChainExt=true;}},
                 {id:'dice',name:'裂隙骰子',icon:'🎲',desc:'掷骰子:1-2扣步+坏点,5-6+500分清坏点',type:'active',effect:()=>{addBeltItem('dice');}},
@@ -478,7 +631,7 @@
             // ==================== 道具腰带管理 ====================
             function addBeltItem(itemId){if(beltItems.length>=4)return;beltItems.push({id:itemId,used:false});renderBelt();}
             function renderBelt(){const slots=itemBelt.querySelectorAll('.item-slot');for(let i=0;i<4;i++){if(i<beltItems.length){const item=ITEM_POOL.find(it=>it.id===beltItems[i].id);slots[i].textContent=item?item.icon:'?';slots[i].className='item-slot '+(beltItems[i].used?'used-slot':'active-slot');}else{slots[i].textContent='🔒';slots[i].className='item-slot';}}}
-            function useBeltItem(slotIndex){if(slotIndex>=beltItems.length||beltItems[slotIndex].used||isProcessing||gameOver)return;const itemId=beltItems[slotIndex].id;beltItems[slotIndex].used=true;renderBelt();if(itemId==='prism'){prismMode=true;rainbowMode=null;selectedRow=selectedCol=-1;renderBoard();}else if(itemId==='dice'){useDice();}else if(itemId==='allin'){useAllin();}else if(itemId==='hourglass'){stepsLeft+=3;updateHUD();}}
+            function useBeltItem(slotIndex){if(slotIndex>=beltItems.length||beltItems[slotIndex].used||isProcessing||gameOver)return;const itemId=beltItems[slotIndex].id;SoundEngine.play('item_use');beltItems[slotIndex].used=true;renderBelt();if(itemId==='prism'){prismMode=true;rainbowMode=null;selectedRow=selectedCol=-1;renderBoard();}else if(itemId==='dice'){useDice();}else if(itemId==='allin'){useAllin();}else if(itemId==='hourglass'){stepsLeft+=3;updateHUD();}}
             document.getElementById('beltSlot0').addEventListener('click',()=>useBeltItem(0));
             document.getElementById('beltSlot1').addEventListener('click',()=>useBeltItem(1));
             document.getElementById('beltSlot2').addEventListener('click',()=>useBeltItem(2));
@@ -509,7 +662,7 @@
                     resultText = '平淡... 无事发生';
                 }
                 diceResultText.textContent = resultText;
-                dicePopupOverlay.style.display = 'flex'; // 强制显示
+                dicePopupOverlay.style.display = 'flex';
                 dicePopupOverlay.classList.add('active');
                 renderBoard();
             }
@@ -536,10 +689,10 @@
             function startNewGame(){currentStage=1;totalScore=0;stage6Cleared=false;applyLevelConfig();score=0;maxSteps=TOTAL_STEPS;stepsLeft=maxSteps;stepsSinceLastGlitch=0;initBoard();selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;obtainedItems=[];beltItems=[];hasRecycle=hasSlowRift=hasSpecialGen=hasResonance=hasChainExt=hasRisk=hasLucky=hasMirror=hasFilter=hasPopupHell=hasVisualGlitch=false;allinActive=diceUsed=prismUsed=false;recycleCounter=0;specialGenCounter=0;halfStepToggle=false;stepsSinceLastPopup=0;stepsDisplay.style.color='#ffdb8e';crtMonitor.classList.remove('mirrored','filtered');if(visualGlitchInterval)clearInterval(visualGlitchInterval);const dots=gameScreen.querySelectorAll('.visual-glitch-dot');dots.forEach(d=>d.remove());updateHUD();gameOverOverlay.classList.remove('active');renderBoard();renderBelt();updatePassiveBar();clearGameState();saveGameState();}
             function applyLevelConfig(){const cfg=LEVELS[currentStage-1];targetScore=cfg.target;glitchInterval=cfg.glitchInterval;startGlitchCount=cfg.startGlitch;}
             function advanceToNextStage(){totalScore+=score;if(currentStage<6){currentStage++;applyLevelConfig();score=0;stepsLeft=maxSteps;stepsSinceLastGlitch=0;initBoard();selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;diceUsed=prismUsed=false;halfStepToggle=false;stepsSinceLastPopup=0;allinActive=false;stepsDisplay.style.color='#ffdb8e';beltItems.forEach(item=>item.used=false);renderBelt();updateHUD();gameOverOverlay.classList.remove('active');renderBoard();saveGameState();}}
-            function endGameWithVictory(){totalScore+=score;gameOver=true;gameOverText.textContent='裂隙征服';gameOverScore.textContent='总得分: '+totalScore.toLocaleString();gameOverButtons.innerHTML=`<button class="restart-btn" id="finalRestartBtn">再次探索</button><button class="menu-return-btn" id="finalMenuBtn">返回主菜单</button>`;gameOverOverlay.classList.add('active');clearGameState();document.getElementById('finalRestartBtn').addEventListener('click',()=>{gameOverOverlay.classList.remove('active');startNewGame();});document.getElementById('finalMenuBtn').addEventListener('click',()=>{gamePage.classList.add('hidden');menuPage.classList.remove('hidden');gameOverOverlay.classList.remove('active');crtMonitor.classList.remove('mirrored','filtered');if(visualGlitchInterval)clearInterval(visualGlitchInterval);});renderBoard();}
-            function endGameWithFailure(){totalScore+=score;gameOver=true;gameOverText.textContent='裂隙闭合';gameOverScore.textContent='总得分: '+totalScore.toLocaleString();gameOverButtons.innerHTML=`<button class="restart-btn" id="failRestartBtn">再次探索</button><button class="menu-return-btn" id="failMenuBtn">返回主菜单</button>`;gameOverOverlay.classList.add('active');clearGameState();document.getElementById('failRestartBtn').addEventListener('click',()=>{gameOverOverlay.classList.remove('active');startNewGame();});document.getElementById('failMenuBtn').addEventListener('click',()=>{gamePage.classList.add('hidden');menuPage.classList.remove('hidden');gameOverOverlay.classList.remove('active');crtMonitor.classList.remove('mirrored','filtered');if(visualGlitchInterval)clearInterval(visualGlitchInterval);});renderBoard();}
-            function checkStageComplete(){if(gameOver||stage6Cleared)return;if(score>=targetScore){if(currentStage===6)showStage6WinDialog();else showRewardPanel();}}
-            function showStage6WinDialog(){const winOverlay=document.createElement('div');winOverlay.className='game-over-overlay active';winOverlay.innerHTML=`<div class="game-over-panel"><div class="game-over-text">裂隙征服</div><div class="game-over-score">本关得分: ${score.toLocaleString()}</div><button class="restart-btn" id="continueExploreBtn">继续探索</button><button class="menu-return-btn" id="backToMenuFromWinBtn">返回主菜单</button></div>`;gameScreen.appendChild(winOverlay);document.getElementById('continueExploreBtn').addEventListener('click',()=>{winOverlay.remove();stage6Cleared=true;gameOver=false;gameOverOverlay.classList.remove('active');renderBoard();});document.getElementById('backToMenuFromWinBtn').addEventListener('click',()=>{winOverlay.remove();totalScore+=score;endGameWithVictory();});}
+            function endGameWithVictory(){totalScore+=score;gameOver=true;SoundEngine.play('game_over');gameOverText.textContent='裂隙征服';gameOverScore.textContent='总得分: '+totalScore.toLocaleString();gameOverButtons.innerHTML=`<button class="restart-btn" id="finalRestartBtn">再次探索</button><button class="menu-return-btn" id="finalMenuBtn">返回主菜单</button>`;gameOverOverlay.classList.add('active');clearGameState();document.getElementById('finalRestartBtn').addEventListener('click',()=>{SoundEngine.play('button');gameOverOverlay.classList.remove('active');startNewGame();});document.getElementById('finalMenuBtn').addEventListener('click',()=>{SoundEngine.play('button');gamePage.classList.add('hidden');menuPage.classList.remove('hidden');gameOverOverlay.classList.remove('active');crtMonitor.classList.remove('mirrored','filtered');if(visualGlitchInterval)clearInterval(visualGlitchInterval);});renderBoard();}
+            function endGameWithFailure(){totalScore+=score;gameOver=true;SoundEngine.play('game_over');gameOverText.textContent='裂隙闭合';gameOverScore.textContent='总得分: '+totalScore.toLocaleString();gameOverButtons.innerHTML=`<button class="restart-btn" id="failRestartBtn">再次探索</button><button class="menu-return-btn" id="failMenuBtn">返回主菜单</button>`;gameOverOverlay.classList.add('active');clearGameState();document.getElementById('failRestartBtn').addEventListener('click',()=>{SoundEngine.play('button');gameOverOverlay.classList.remove('active');startNewGame();});document.getElementById('failMenuBtn').addEventListener('click',()=>{SoundEngine.play('button');gamePage.classList.add('hidden');menuPage.classList.remove('hidden');gameOverOverlay.classList.remove('active');crtMonitor.classList.remove('mirrored','filtered');if(visualGlitchInterval)clearInterval(visualGlitchInterval);});renderBoard();}
+            function checkStageComplete(){if(gameOver||stage6Cleared)return;if(score>=targetScore){if(currentStage===6)showStage6WinDialog();else{ SoundEngine.play('level_complete'); showRewardPanel(); }}}
+            function showStage6WinDialog(){const winOverlay=document.createElement('div');winOverlay.className='game-over-overlay active';winOverlay.innerHTML=`<div class="game-over-panel"><div class="game-over-text">裂隙征服</div><div class="game-over-score">本关得分: ${score.toLocaleString()}</div><button class="restart-btn" id="continueExploreBtn">继续探索</button><button class="menu-return-btn" id="backToMenuFromWinBtn">返回主菜单</button></div>`;gameScreen.appendChild(winOverlay);document.getElementById('continueExploreBtn').addEventListener('click',()=>{SoundEngine.play('button');winOverlay.remove();stage6Cleared=true;gameOver=false;gameOverOverlay.classList.remove('active');renderBoard();});document.getElementById('backToMenuFromWinBtn').addEventListener('click',()=>{SoundEngine.play('button');winOverlay.remove();totalScore+=score;endGameWithVictory();});}
 
             // ==================== 道具奖励面板 ====================
             function showRewardPanel(){
@@ -553,7 +706,7 @@
                 if (selected.length === 0) { advanceToNextStage(); return; }
                 rewardCards.innerHTML = selected.map(item => `<div class="reward-card" data-id="${item.id}"><div class="reward-icon">${item.icon}</div><div class="reward-name">${item.name}</div><div class="reward-desc">${item.desc}</div></div>`).join('');
                 rewardOverlay.classList.add('active');
-                rewardCards.querySelectorAll('.reward-card').forEach(card => { card.addEventListener('click', () => { const id = card.dataset.id; const item = ITEM_POOL.find(it => it.id === id); if (item) { item.effect(); obtainedItems.push(id); updatePassiveBar(); } rewardOverlay.classList.remove('active'); advanceToNextStage(); }); });
+                rewardCards.querySelectorAll('.reward-card').forEach(card => { card.addEventListener('click', () => { const id = card.dataset.id; const item = ITEM_POOL.find(it => it.id === id); if (item) { item.effect(); obtainedItems.push(id); SoundEngine.play('item_get'); updatePassiveBar(); } rewardOverlay.classList.remove('active'); advanceToNextStage(); }); });
             }
 
             // ==================== 坏点管理 ====================
@@ -565,21 +718,21 @@
             function renderBoard(){boardEl.innerHTML='';for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const cell=document.createElement('div');cell.className='cell '+getCellClass(board[r][c]);if(r===selectedRow&&c===selectedCol)cell.classList.add('selected');if(rainbowMode&&r===rainbowMode.r&&c===rainbowMode.c)cell.classList.add('rainbow-selected');if(prismMode)cell.classList.add('selected');if(newSpawnCells.some(n=>n.r===r&&n.c===c))cell.classList.add('new-spawn');cell.dataset.row=r;cell.dataset.col=c;cell.addEventListener('click',()=>handleCellClick(r,c));cell.addEventListener('touchstart',(e)=>{e.preventDefault();handleCellClick(r,c);});boardEl.appendChild(cell);}setTimeout(()=>newSpawnCells=[],300);}
 
             // ==================== 点击处理 ====================
-            function handleCellClick(row,col){if(isProcessing||gameOver)return;const val=board[row][col];if(prismMode){if(val>=0&&val<COLORS){triggerPrism(row,col);return;}else{prismMode=false;renderBoard();return;}}if(rainbowMode){if(val>=0&&val<COLORS)triggerRainbow(rainbowMode.r,rainbowMode.c,val);else if(val===TYPE_SPECIAL)triggerResonance(rainbowMode.r,rainbowMode.c,row,col);else{rainbowMode=null;rainbowHint.classList.remove('show');renderBoard();}return;}if(val===TYPE_GLITCH)return;if(val===TYPE_RAINBOW){rainbowMode={r:row,c:col};rainbowHint.classList.add('show');selectedRow=selectedCol=-1;renderBoard();return;}if(val===TYPE_SPECIAL){triggerSpecial(row,col);return;}if(selectedRow===-1){selectedRow=row;selectedCol=col;renderBoard();}else if(selectedRow===row&&selectedCol===col){selectedRow=selectedCol=-1;renderBoard();}else if(Math.abs(selectedRow-row)+Math.abs(selectedCol-col)===1){const sr=selectedRow,sc=selectedCol;selectedRow=selectedCol=-1;trySwap(sr,sc,row,col);}else{selectedRow=row;selectedCol=col;renderBoard();}}
+            function handleCellClick(row,col){if(isProcessing||gameOver)return;SoundEngine.play('select');const val=board[row][col];if(prismMode){if(val>=0&&val<COLORS){triggerPrism(row,col);return;}else{prismMode=false;renderBoard();return;}}if(rainbowMode){if(val>=0&&val<COLORS)triggerRainbow(rainbowMode.r,rainbowMode.c,val);else if(val===TYPE_SPECIAL)triggerResonance(rainbowMode.r,rainbowMode.c,row,col);else{rainbowMode=null;rainbowHint.classList.remove('show');renderBoard();}return;}if(val===TYPE_GLITCH)return;if(val===TYPE_RAINBOW){rainbowMode={r:row,c:col};rainbowHint.classList.add('show');selectedRow=selectedCol=-1;renderBoard();return;}if(val===TYPE_SPECIAL){triggerSpecial(row,col);return;}if(selectedRow===-1){selectedRow=row;selectedCol=col;renderBoard();}else if(selectedRow===row&&selectedCol===col){selectedRow=selectedCol=-1;renderBoard();}else if(Math.abs(selectedRow-row)+Math.abs(selectedCol-col)===1){const sr=selectedRow,sc=selectedCol;selectedRow=selectedCol=-1;trySwap(sr,sc,row,col);}else{selectedRow=row;selectedCol=col;renderBoard();}}
 
             // ==================== 彩虹棱镜 ====================
             async function triggerPrism(row,col){if(isProcessing||gameOver||!prismMode||board[row][col]<0||board[row][col]>=COLORS)return;isProcessing=true;prismMode=false;const startScore=score;board[row][col]=TYPE_RAINBOW;const positions=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=row+dr,nc=col+dc;if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)positions.push({r:nr,c:nc});}if(positions.length>0){const pos=positions[Math.floor(Math.random()*positions.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
 
             // ==================== 裂隙共鸣 ====================
-            async function triggerResonance(rRainbow,cRainbow,rSpecial,cSpecial){if(isProcessing||gameOver)return;const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[];let clearCount=0;for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++){const v=board[rr][cc];if(v>=0&&v<COLORS){toClear.push({r:rr,c:cc});clearCount++;}else if(v===TYPE_GLITCH)toClear.push({r:rr,c:cc});}toClear.push({r:rRainbow,c:cRainbow});toClear.push({r:rSpecial,c:cSpecial});const flash=document.createElement('div');flash.className='flash-overlay';gameScreen.appendChild(flash);setTimeout(()=>flash.remove(),500);boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);for(const pos of toClear)board[pos.r][pos.c]=-1;let resonanceScore=clearCount*10+50+30;if(hasResonance)resonanceScore=clearCount*20+50+30;if(hasMirror)resonanceScore+=clearCount*15;if(hasVisualGlitch)resonanceScore=Math.floor(resonanceScore*1.5);if(allinActive)resonanceScore*=2;addScore(resonanceScore);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
+            async function triggerResonance(rRainbow,cRainbow,rSpecial,cSpecial){if(isProcessing||gameOver)return;SoundEngine.play('resonance');const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[];let clearCount=0;for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++){const v=board[rr][cc];if(v>=0&&v<COLORS){toClear.push({r:rr,c:cc});clearCount++;}else if(v===TYPE_GLITCH)toClear.push({r:rr,c:cc});}toClear.push({r:rRainbow,c:cRainbow});toClear.push({r:rSpecial,c:cSpecial});const flash=document.createElement('div');flash.className='flash-overlay';gameScreen.appendChild(flash);setTimeout(()=>flash.remove(),500);boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);for(const pos of toClear)board[pos.r][pos.c]=-1;let resonanceScore=clearCount*10+50+30;if(hasResonance)resonanceScore=clearCount*20+50+30;if(hasMirror)resonanceScore+=clearCount*15;if(hasVisualGlitch)resonanceScore=Math.floor(resonanceScore*1.5);if(allinActive)resonanceScore*=2;addScore(resonanceScore);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
             function shatterCell(cell){if(!cell||cell.classList.contains('shattering'))return;cell.classList.add('shattering');for(let i=1;i<=4;i++){const shard=document.createElement('div');shard.className='shard';shard.style.animation=`shard${i} 0.4s ease-out forwards`;cell.appendChild(shard);}setTimeout(()=>{cell.querySelectorAll('.shard').forEach(s=>s.remove());cell.classList.remove('shattering');},400);}
 
             // ==================== 彩虹块 ====================
-            async function triggerRainbow(r,c,color){if(isProcessing||gameOver)return;const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[{r,c}];for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++)if(board[rr][cc]===color)toClear.push({r:rr,c:cc});boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);let clearCount=0;for(const pos of toClear){if(board[pos.r][pos.c]>=0)clearCount++;board[pos.r][pos.c]=-1;}let rainbowScore=clearCount*10+50;if(hasFilter&&color===3)rainbowScore=clearCount*20+50;if(hasMirror)rainbowScore+=clearCount*15;if(hasVisualGlitch)rainbowScore=Math.floor(rainbowScore*1.5);if(allinActive)rainbowScore*=2;addScore(rainbowScore);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
+            async function triggerRainbow(r,c,color){if(isProcessing||gameOver)return;SoundEngine.play('rainbow');const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[{r,c}];for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++)if(board[rr][cc]===color)toClear.push({r:rr,c:cc});boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);let clearCount=0;for(const pos of toClear){if(board[pos.r][pos.c]>=0)clearCount++;board[pos.r][pos.c]=-1;}let rainbowScore=clearCount*10+50;if(hasFilter&&color===3)rainbowScore=clearCount*20+50;if(hasMirror)rainbowScore+=clearCount*15;if(hasVisualGlitch)rainbowScore=Math.floor(rainbowScore*1.5);if(allinActive)rainbowScore*=2;addScore(rainbowScore);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
 
             // ==================== 特殊块引爆 ====================
             async function triggerSpecial(row,col){
-                if(isProcessing||gameOver)return;const startScore=score;isProcessing=true;
+                if(isProcessing||gameOver)return;SoundEngine.play('special');const startScore=score;isProcessing=true;
                 const range=hasChainExt?2:1;
                 const allCleared=new Set();const queue=[{r:row,c:col}];allCleared.add(row*COLS+col);
                 while(queue.length>0){const current=queue.shift();for(let dr=-range;dr<=range;dr++)for(let dc=-range;dc<=range;dc++){const nr=current.r+dr,nc=current.c+dc;if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&!allCleared.has(nr*COLS+nc)){allCleared.add(nr*COLS+nc);if(board[nr][nc]===TYPE_SPECIAL||board[nr][nc]===TYPE_RAINBOW)queue.push({r:nr,c:nc});}}}
@@ -589,23 +742,23 @@
                 for(const idx of allCleared){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]===TYPE_SPECIAL)layerScore+=30+(hasSpecialGen?20:0);else if(board[r][c]===TYPE_RAINBOW)layerScore+=50;else if(board[r][c]>=0){layerScore+=10;normalCleared++;}board[r][c]=-1;}
                 if(hasMirror)layerScore+=normalCleared*15;if(hasVisualGlitch)layerScore=Math.floor(layerScore*1.5);if(allinActive)layerScore*=2;addScore(layerScore);
                 if(hasRecycle){recycleCounter+=normalCleared;while(recycleCounter>=15){recycleCounter-=15;stepsLeft++;updateHUD();}}
-                if(hasSpecialGen){specialGenCounter+=normalCleared;while(specialGenCounter>=12){specialGenCounter-=12;const empties=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===-1)empties.push({r,c});if(empties.length>0){const pos=empties[Math.floor(Math.random()*empties.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}}}
+                if(hasSpecialGen){specialGenCounter+=normalCleared;while(specialGenCounter>=30){specialGenCounter-=30;const empties=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===-1)empties.push({r,c});if(empties.length>0){const pos=empties[Math.floor(Math.random()*empties.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}}}
                 applyGravityAndSpawn();renderBoard();await processChain();
                 saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();
             }
 
             // ==================== 被动计数器 ====================
             function addSwapCounters(count){if(hasRecycle){recycleCounter+=count;while(recycleCounter>=15){recycleCounter-=15;stepsLeft++;updateHUD();}}if(hasSpecialGen){specialGenCounter+=count;}}
-            function checkAndSpawnSpecialGen(){if(!hasSpecialGen)return;while(specialGenCounter>=12){specialGenCounter-=12;const empties=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===-1)empties.push({r,c});if(empties.length>0){const pos=empties[Math.floor(Math.random()*empties.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}}}
+            function checkAndSpawnSpecialGen(){if(!hasSpecialGen)return;while(specialGenCounter>=30){specialGenCounter-=30;const empties=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===-1)empties.push({r,c});if(empties.length>0){const pos=empties[Math.floor(Math.random()*empties.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}}}
 
             // ==================== 交换与消除逻辑 ====================
             async function trySwap(r1,c1,r2,c2){
-                isProcessing=true;const startScore=score;[board[r1][c1],board[r2][c2]]=[board[r2][c2],board[r1][c1]];renderBoard();const matchData=findMatches();
+                isProcessing=true;SoundEngine.play('swap');const startScore=score;[board[r1][c1],board[r2][c2]]=[board[r2][c2],board[r1][c1]];renderBoard();const matchData=findMatches();
                 if(matchData.matched.size===0){await sleep(180);[board[r1][c1],board[r2][c2]]=[board[r2][c2],board[r1][c1]];renderBoard();isProcessing=false;return;}
                 if(hasSlowRift){halfStepToggle=!halfStepToggle;if(!halfStepToggle){stepsLeft--;updateHUD();}}else{stepsLeft--;updateHUD();}
                 if(stepsLeft<=6)stepsDisplay.classList.add('warning');comboCount=0;await processMatches(matchData);
-                const glitchCount=countGlitchOnBoard();if(glitchCount>0){addScore(-(glitchCount*5));glitchWarning.textContent='⚠️ 坏点侵蚀 -'+(glitchCount*5);glitchWarning.classList.add('show');setTimeout(()=>glitchWarning.classList.remove('show'),800);}
-                stepsSinceLastGlitch++;if(stepsSinceLastGlitch>=glitchInterval){stepsSinceLastGlitch=0;spawnRandomGlitch();}
+                const glitchCount=countGlitchOnBoard();if(glitchCount>0){SoundEngine.play('glitch_penalty');addScore(-(glitchCount*5));glitchWarning.textContent='⚠️ 坏点侵蚀 -'+(glitchCount*5);glitchWarning.classList.add('show');setTimeout(()=>glitchWarning.classList.remove('show'),800);}
+                stepsSinceLastGlitch++;if(stepsSinceLastGlitch>=glitchInterval){stepsSinceLastGlitch=0;SoundEngine.play('glitch_spawn');spawnRandomGlitch();}
                 if(hasPopupHell){stepsSinceLastPopup++;if(stepsSinceLastPopup>=6){stepsSinceLastPopup=0;spawnPopup();}}
                 saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();
             }
@@ -624,7 +777,7 @@
             async function processMatches(matchData){
                 let{matched,matchLengths}=matchData;
                 while(matched.size>0){
-                    comboCount++;if(comboCount>=2){comboIndicator.textContent='✧ 连消 x'+comboCount+' ✧';comboIndicator.classList.add('show');}
+                    comboCount++;if(comboCount>=2){SoundEngine.play('combo');comboIndicator.textContent='✧ 连消 x'+comboCount+' ✧';comboIndicator.classList.add('show');} else { SoundEngine.play('match3'); }
                     const toClear=clearMatchedAndAdjacentGlitch(matched);
                     let baseScore=matched.size*10+(comboCount-1)*20;
                     if(hasRisk){const rand=Math.random();if(rand<0.2)baseScore*=5;else if(rand>0.95)baseScore=Math.max(0,baseScore-100);}
@@ -645,7 +798,7 @@
                 comboIndicator.classList.remove('show');
             }
             function applyGravityAndSpawn(){for(let c=0;c<COLS;c++){let wr=ROWS-1;for(let r=ROWS-1;r>=0;r--)if(board[r][c]!==-1)board[wr--][c]=board[r][c];for(let r=wr;r>=0;r--)board[r][c]=-1;}newSpawnCells=[];for(let c=0;c<COLS;c++)for(let r=0;r<ROWS;r++)if(board[r][c]===-1){board[r][c]=Math.floor(Math.random()*COLORS);newSpawnCells.push({r,c});}}
-            async function processChain(){let data=findMatches();while(data.matched.size>0){comboCount++;if(comboCount>=2){comboIndicator.textContent='✧ 连消 x'+comboCount+' ✧';comboIndicator.classList.add('show');}const toClear=clearMatchedAndAdjacentGlitch(data.matched);let baseScore=data.matched.size*10+(comboCount-1)*20;if(hasRisk){const rand=Math.random();if(rand<0.2)baseScore*=5;else if(rand>0.95)baseScore=Math.max(0,baseScore-100);}if(allinActive)baseScore*=2;if(hasFilter){let purpleCount=0,normalCount=0;for(const idx of data.matched){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]>=0&&board[r][c]<COLORS){if(COLOR_CLASSES[board[r][c]]==='purple')purpleCount++;else normalCount++;}}baseScore=normalCount*10+purpleCount*20+(comboCount-1)*20;}if(hasMirror){let mirrorBonus=0;for(const idx of data.matched){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]>=0&&board[r][c]<COLORS)mirrorBonus+=15;}baseScore+=mirrorBonus;}if(hasVisualGlitch)baseScore=Math.floor(baseScore*1.5);addScore(baseScore);let normalInThisBatch=0;for(const idx of data.matched){if(board[Math.floor(idx/COLS)][idx%COLS]>=0&&board[Math.floor(idx/COLS)][idx%COLS]<COLORS)normalInThisBatch++;}addSwapCounters(normalInThisBatch);document.querySelectorAll('.cell').forEach(c=>{if(toClear.has(parseInt(c.dataset.row)*COLS+parseInt(c.dataset.col)))shatterCell(c);});const delay=Math.max(120,380-comboCount*45);await sleep(delay);for(const idx of toClear)board[Math.floor(idx/COLS)][idx%COLS]=-1;spawnSpecials(data.matchLengths);checkAndSpawnSpecialGen();applyGravityAndSpawn();renderBoard();await sleep(120);data=findMatches();}comboIndicator.classList.remove('show');}
+            async function processChain(){let data=findMatches();while(data.matched.size>0){comboCount++;if(comboCount>=2){SoundEngine.play('combo');comboIndicator.textContent='✧ 连消 x'+comboCount+' ✧';comboIndicator.classList.add('show');} else { SoundEngine.play('match3'); }const toClear=clearMatchedAndAdjacentGlitch(data.matched);let baseScore=data.matched.size*10+(comboCount-1)*20;if(hasRisk){const rand=Math.random();if(rand<0.2)baseScore*=5;else if(rand>0.95)baseScore=Math.max(0,baseScore-100);}if(allinActive)baseScore*=2;if(hasFilter){let purpleCount=0,normalCount=0;for(const idx of data.matched){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]>=0&&board[r][c]<COLORS){if(COLOR_CLASSES[board[r][c]]==='purple')purpleCount++;else normalCount++;}}baseScore=normalCount*10+purpleCount*20+(comboCount-1)*20;}if(hasMirror){let mirrorBonus=0;for(const idx of data.matched){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]>=0&&board[r][c]<COLORS)mirrorBonus+=15;}baseScore+=mirrorBonus;}if(hasVisualGlitch)baseScore=Math.floor(baseScore*1.5);addScore(baseScore);let normalInThisBatch=0;for(const idx of data.matched){if(board[Math.floor(idx/COLS)][idx%COLS]>=0&&board[Math.floor(idx/COLS)][idx%COLS]<COLORS)normalInThisBatch++;}addSwapCounters(normalInThisBatch);document.querySelectorAll('.cell').forEach(c=>{if(toClear.has(parseInt(c.dataset.row)*COLS+parseInt(c.dataset.col)))shatterCell(c);});const delay=Math.max(120,380-comboCount*45);await sleep(delay);for(const idx of toClear)board[Math.floor(idx/COLS)][idx%COLS]=-1;spawnSpecials(data.matchLengths);checkAndSpawnSpecialGen();applyGravityAndSpawn();renderBoard();await sleep(120);data=findMatches();}comboIndicator.classList.remove('show');}
             function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
             // ==================== 初始化 ====================
