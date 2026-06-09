@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>裂隙回响</title>
+    <title>裂隙回响 · 像素三消</title>
     <style>
         /* ==================== 全局基础样式 ==================== */
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -100,6 +100,79 @@
             color:#fde8b5; font-size:8px; position:relative; text-align:center;
         }
         .popup-close { position:absolute; top:2px; right:8px; background:none; border:none; color:#ff6161; font-size:12px; cursor:pointer; }
+
+        /* ==================== 新手引导专用样式 ==================== */
+        .tutorial-overlay {
+            z-index: 60;
+        }
+        .tutorial-box {
+            max-width: 340px;
+            width: 90%;
+            padding: 16px 12px;
+            font-size: 7px;
+            line-height: 1.8;
+        }
+        .tutorial-pages {
+            position: relative;
+        }
+        .tutorial-page {
+            display: none;
+        }
+        .tutorial-page.active {
+            display: block;
+        }
+        .tutorial-page h3 {
+            font-size: 9px;
+            color: #ffd966;
+            margin-bottom: 8px;
+        }
+        .tutorial-page p {
+            margin: 4px 0;
+        }
+        .page-indicator {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .page-dot {
+            width: 6px;
+            height: 6px;
+            background: #4a3d5c;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .page-dot.active {
+            background: #c77dff;
+        }
+        .tutorial-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .tutorial-nav button {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+            background: #2a1548;
+            border: 2px solid #c77dff;
+            color: #fde8b5;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+        .tutorial-skip {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 6px;
+            color: #9b8ab8;
+            margin-top: 6px;
+            justify-content: center;
+        }
+        .tutorial-skip input {
+            margin: 0;
+        }
 
         /* ==================== 图鉴专用样式 ==================== */
         .compendium-box { max-width:360px; width:90%; max-height:80%; overflow-y:auto; padding:10px; }
@@ -311,16 +384,66 @@
                     <button class="menu-btn" id="continueBtn">继 续 探 索</button>
                     <button class="menu-btn" id="compendiumBtn">道 具 图 鉴</button>
                 </div>
-                <div class="small-btns"><button class="small-btn" id="settingsBtn">设 定</button><button class="small-btn" id="aboutBtn">关 于</button></div>
-                <span class="version-text">ver 2.1.0</span>
+                <div class="small-btns"><button class="small-btn" id="settingsBtn">设 定</button><button class="small-btn" id="aboutBtn">关 于</button><button class="small-btn" id="rulesBtn">📋 规则</button></div>
+                <span class="version-text">ver 2.1.1</span>
                 <div class="announcement-btn" id="announceBtn">📢 公告</div>
-                <div class="popup-overlay" id="announceOverlay"><div class="popup-box"><span class="popup-close" id="closeAnnounce">✕</span><p>2026年5月27日——实装了道具图鉴按钮的功能，并加入了声音，<br>同时修改了“特殊块生成”道具的效果<br>12->30<br>2026年5月26日——新加入了关卡和道具系统<br>2026年5月22日——裂隙回响测试版推出</p></div></div>
+                <div class="popup-overlay" id="announceOverlay"><div class="popup-box"><span class="popup-close" id="closeAnnounce">✕</span><p>2026年6月9日——加入了新手规则按钮功能，<br>同时修改了“步数回收”道具的效果<br>15->40<br>2026年5月27日——实装了道具图鉴按钮的功能，并加入了声音，<br>同时修改了"特殊块生成"道具的效果<br>12->30<br>2026年5月26日——新加入了关卡和道具系统<br>2026年5月22日——裂隙回响测试版推出</p></div></div>
                 <div class="popup-overlay" id="settingsOverlay">
                     <div class="popup-box" style="text-align:left;">
                         <span class="popup-close" id="closeSettings">✕</span>
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span>🔊 音量</span><input type="range" id="volumeSlider" min="0" max="10" value="7" style="width:90px;"></div>
                         <button class="small-btn" id="resetSaveBtn" style="width:100%;">重置存档</button>
                         <div id="resetFeedback" style="color:#5cf25c;font-size:7px;text-align:center;margin-top:4px;display:none;">存档已清除</div>
+                    </div>
+                </div>
+                <!-- 新手引导弹窗 -->
+                <div class="popup-overlay tutorial-overlay" id="tutorialOverlay" style="display:none">
+                    <div class="popup-box tutorial-box">
+                        <span class="popup-close" id="closeTutorialBtn">✕</span>
+                        <div class="tutorial-pages">
+                            <div class="tutorial-page active" id="tutorialPage1">
+                                <h3>📋 裂隙操作手册 1/4</h3>
+                                <p>◆ ◆ ◆ = 消除！</p>
+                                <p>点击相邻两个宝石<br>交换它们的位置</p>
+                                <p>横/竖 3 个或以上<br>同色宝石连成一线<br>即可消除并获得分数</p>
+                            </div>
+                            <div class="tutorial-page" id="tutorialPage2">
+                                <h3>📋 裂隙操作手册 2/4</h3>
+                                <p>4连消 → ✦ 特殊块</p>
+                                <p>点击引爆：炸掉周围<br>3×3 区域并连锁</p>
+                                <p>5连消 → 🌈 彩虹块</p>
+                                <p>点击后选择一种颜色<br>全屏消除该色所有宝石</p>
+                            </div>
+                            <div class="tutorial-page" id="tutorialPage3">
+                                <h3>📋 裂隙操作手册 3/4</h3>
+                                <p>🌈 + ✦ 相邻点击</p>
+                                <p>= 裂隙共鸣！</p>
+                                <p>清除所有普通宝石<br>并大量加分</p>
+                                <p>◘ = 坏点（不可移动）</p>
+                                <p>消除相邻宝石可清除<br>否则每回合扣分</p>
+                            </div>
+                            <div class="tutorial-page" id="tutorialPage4">
+                                <h3>📋 裂隙操作手册 4/4</h3>
+                                <p>过关后获得道具 3 选 1</p>
+                                <p>被动道具自动生效</p>
+                                <p>主动道具放入腰带<br>点击腰带图标使用</p>
+                                <p>步数有限，合理规划！</p>
+                            </div>
+                        </div>
+                        <div class="page-indicator" id="pageIndicator">
+                            <span class="page-dot active" data-page="1"></span>
+                            <span class="page-dot" data-page="2"></span>
+                            <span class="page-dot" data-page="3"></span>
+                            <span class="page-dot" data-page="4"></span>
+                        </div>
+                        <div class="tutorial-nav">
+                            <button id="tutorialPrevBtn">◀ 上一页</button>
+                            <button id="tutorialNextBtn">下一页 ▶</button>
+                        </div>
+                        <div class="tutorial-skip" id="tutorialSkipRow">
+                            <input type="checkbox" id="tutorialNeverShow"><label for="tutorialNeverShow">不再显示</label>
+                        </div>
+                        <button class="menu-return-btn" id="tutorialStartBtn" style="display:none; margin-top:6px;">开始裂隙探索 ▶</button>
                     </div>
                 </div>
                 <!-- 道具图鉴弹窗 -->
@@ -342,7 +465,7 @@
                         <input type="radio" name="room-item" id="r-none" class="scene-radio" checked>
                         <input type="radio" name="room-item" id="r-pc" class="scene-radio"><input type="radio" name="room-item" id="r-photo" class="scene-radio"><input type="radio" name="room-item" id="r-bookshelf" class="scene-radio"><input type="radio" name="room-item" id="r-window" class="scene-radio">
                         <label for="r-pc" class="interactive computer"></label><label for="r-photo" class="interactive photo-frame"></label><label for="r-bookshelf" class="interactive bookshelf"><span class="book"></span><span class="book"></span><span class="book"></span><span class="book"></span></label><div class="window"></div><label for="r-window" class="interactive window" style="background:transparent;border:none;"></label>
-                        <div class="info-bubble pc-info"><label for="r-none" class="bubble-close">✕</label><strong>► 老旧终端</strong><br>版本: v2.1.0<br>开发者: 与君</div>
+                        <div class="info-bubble pc-info"><label for="r-none" class="bubble-close">✕</label><strong>► 老旧终端</strong><br>版本: v2.1.1<br>开发者: 与君</div>
                         <div class="info-bubble photo-info"><label for="r-none" class="bubble-close">✕</label><strong>► 像素合影</strong><br>依稀可以看到你和其他人的身影...</div>
                         <div class="info-bubble bookshelf-info"><label for="r-none" class="bubble-close">✕</label><strong>► 灵感书架</strong><br>《CRT维修手册》<br>《点阵字体入门》</div>
                         <div class="info-bubble window-info"><label for="r-none" class="bubble-close">✕</label><strong>► 窗外</strong><br>数据之海，紫色月光</div>
@@ -410,6 +533,7 @@
             const diceResultIcon=document.getElementById('diceResultIcon'),diceCloseBtn=document.getElementById('diceCloseBtn');
             const gameScreen=document.getElementById('gameScreen');
             const SAVE_KEY='riftEchoSave';
+            const TUTORIAL_KEY='riftTutorialSeen';
 
             // ==================== 音效引擎 ====================
             const SoundEngine = {
@@ -467,25 +591,160 @@
                 }
             };
 
-            // ==================== 页面切换事件 ====================
-            document.getElementById('startGameBtn').addEventListener('click',()=>{SoundEngine.play('button');clearGameState();menuPage.classList.add('hidden');gamePage.classList.remove('hidden');startNewGame();});
-            document.getElementById('backToMenuBtn').addEventListener('click',()=>{
+            // ==================== 新手引导逻辑 ====================
+            const tutorialOverlay = document.getElementById('tutorialOverlay');
+            const tutorialPages = document.querySelectorAll('.tutorial-page');
+            const pageDots = document.querySelectorAll('.page-dot');
+            const prevBtn = document.getElementById('tutorialPrevBtn');
+            const nextBtn = document.getElementById('tutorialNextBtn');
+            const startBtn = document.getElementById('tutorialStartBtn');
+            const neverShowCheck = document.getElementById('tutorialNeverShow');
+            const tutorialSkipRow = document.getElementById('tutorialSkipRow');
+            const closeTutorialBtn = document.getElementById('closeTutorialBtn');
+            let currentTutorialPage = 1;
+            let isTutorialManual = false;
+
+            function showTutorialPage(page) {
+                tutorialPages.forEach(p => p.classList.remove('active'));
+                pageDots.forEach(d => d.classList.remove('active'));
+                document.getElementById('tutorialPage' + page).classList.add('active');
+                document.querySelector(`.page-dot[data-page="${page}"]`).classList.add('active');
+                if (page === 1) prevBtn.style.visibility = 'hidden'; else prevBtn.style.visibility = 'visible';
+                if (page === 4) {
+                    nextBtn.style.display = 'none';
+                    startBtn.style.display = 'inline-block';
+                    if (isTutorialManual) {
+                        startBtn.textContent = '关闭手册';
+                        tutorialSkipRow.style.display = 'none';
+                    } else {
+                        startBtn.textContent = '开始裂隙探索 ▶';
+                        tutorialSkipRow.style.display = 'flex';
+                    }
+                } else {
+                    nextBtn.style.display = 'inline-block';
+                    startBtn.style.display = 'none';
+                    if (!isTutorialManual) tutorialSkipRow.style.display = 'flex';
+                    else tutorialSkipRow.style.display = 'none';
+                }
+                currentTutorialPage = page;
+            }
+
+            function closeTutorial() {
+                tutorialOverlay.style.display = 'none';
+                tutorialOverlay.classList.remove('active');
+            }
+
+            function openTutorial(fromMenu) {
+                isTutorialManual = fromMenu;
+                tutorialOverlay.style.display = 'flex';
+                tutorialOverlay.classList.add('active');
+                showTutorialPage(1);
+                if (!fromMenu) {
+                    neverShowCheck.checked = false;
+                }
+            }
+
+            function closeTutorialAndStart() {
+                if (!isTutorialManual && neverShowCheck.checked) {
+                    localStorage.setItem(TUTORIAL_KEY, '1');
+                }
+                closeTutorial();
                 SoundEngine.play('button');
-                gamePage.classList.add('hidden');menuPage.classList.remove('hidden');
-                gameOverOverlay.classList.remove('active');rainbowMode=null;
+                clearGameState();
+                menuPage.classList.add('hidden');
+                gamePage.classList.remove('hidden');
+                startNewGame();
+            }
+
+            function handleTutorialStartClick() {
+                if (isTutorialManual) {
+                    closeTutorial();
+                } else {
+                    closeTutorialAndStart();
+                }
+            }
+
+            closeTutorialBtn.addEventListener('click', () => {
+                if (!isTutorialManual && neverShowCheck.checked) {
+                    localStorage.setItem(TUTORIAL_KEY, '1');
+                }
+                closeTutorial();
+            });
+
+            document.getElementById('startGameBtn').addEventListener('click', () => {
+                SoundEngine.play('button');
+                if (!localStorage.getItem(TUTORIAL_KEY)) {
+                    openTutorial(false);
+                } else {
+                    clearGameState();
+                    menuPage.classList.add('hidden');
+                    gamePage.classList.remove('hidden');
+                    startNewGame();
+                }
+            });
+
+            document.getElementById('rulesBtn').addEventListener('click', () => {
+                SoundEngine.play('button');
+                openTutorial(true);
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentTutorialPage > 1) showTutorialPage(currentTutorialPage - 1);
+            });
+            nextBtn.addEventListener('click', () => {
+                if (currentTutorialPage < 4) showTutorialPage(currentTutorialPage + 1);
+            });
+            startBtn.addEventListener('click', handleTutorialStartClick);
+
+            // ==================== 通用返回主菜单函数（强制清理引导弹窗） ====================
+            function returnToMenu() {
+                closeTutorial(); // 关闭引导弹窗，设置为 display:none
+                gamePage.classList.add('hidden');
+                menuPage.classList.remove('hidden');
+                gameOverOverlay.classList.remove('active');
+                rainbowMode=null;
                 crtMonitor.classList.remove('mirrored','filtered');
                 if(visualGlitchInterval)clearInterval(visualGlitchInterval);
-                const dots=gameScreen.querySelectorAll('.visual-glitch-dot');dots.forEach(d=>d.remove());
+                const dots=gameScreen.querySelectorAll('.visual-glitch-dot');
+                dots.forEach(d=>d.remove());
+            }
+
+            document.getElementById('backToMenuBtn').addEventListener('click',()=>{
+                SoundEngine.play('button');
+                returnToMenu();
             });
             document.getElementById('menuReturnBtn').addEventListener('click',()=>{
                 SoundEngine.play('button');
-                gamePage.classList.add('hidden');menuPage.classList.remove('hidden');
-                gameOverOverlay.classList.remove('active');rainbowMode=null;
-                crtMonitor.classList.remove('mirrored','filtered');
-                if(visualGlitchInterval)clearInterval(visualGlitchInterval);
-                const dots=gameScreen.querySelectorAll('.visual-glitch-dot');dots.forEach(d=>d.remove());
+                returnToMenu();
             });
             document.getElementById('continueBtn').addEventListener('click',()=>{SoundEngine.play('button');if(loadGameState()){menuPage.classList.add('hidden');gamePage.classList.remove('hidden');}else alert('暂无存档');});
+
+            // ==================== 重写游戏结束函数，确保其返回按钮也调用 returnToMenu ====================
+            function endGameWithVictory(){
+                totalScore+=score;gameOver=true;SoundEngine.play('game_over');
+                gameOverText.textContent='裂隙征服';gameOverScore.textContent='总得分: '+totalScore.toLocaleString();
+                gameOverButtons.innerHTML=`<button class="restart-btn" id="finalRestartBtn">再次探索</button><button class="menu-return-btn" id="finalMenuBtn">返回主菜单</button>`;
+                gameOverOverlay.classList.add('active');clearGameState();
+                document.getElementById('finalRestartBtn').addEventListener('click',()=>{SoundEngine.play('button');gameOverOverlay.classList.remove('active');startNewGame();});
+                document.getElementById('finalMenuBtn').addEventListener('click',()=>{SoundEngine.play('button');returnToMenu();});
+                renderBoard();
+            }
+            function endGameWithFailure(){
+                totalScore+=score;gameOver=true;SoundEngine.play('game_over');
+                gameOverText.textContent='裂隙闭合';gameOverScore.textContent='总得分: '+totalScore.toLocaleString();
+                gameOverButtons.innerHTML=`<button class="restart-btn" id="failRestartBtn">再次探索</button><button class="menu-return-btn" id="failMenuBtn">返回主菜单</button>`;
+                gameOverOverlay.classList.add('active');clearGameState();
+                document.getElementById('failRestartBtn').addEventListener('click',()=>{SoundEngine.play('button');gameOverOverlay.classList.remove('active');startNewGame();});
+                document.getElementById('failMenuBtn').addEventListener('click',()=>{SoundEngine.play('button');returnToMenu();});
+                renderBoard();
+            }
+            function showStage6WinDialog(){
+                const winOverlay=document.createElement('div');winOverlay.className='game-over-overlay active';
+                winOverlay.innerHTML=`<div class="game-over-panel"><div class="game-over-text">裂隙征服</div><div class="game-over-score">本关得分: ${score.toLocaleString()}</div><button class="restart-btn" id="continueExploreBtn">继续探索</button><button class="menu-return-btn" id="backToMenuFromWinBtn">返回主菜单</button></div>`;
+                gameScreen.appendChild(winOverlay);
+                document.getElementById('continueExploreBtn').addEventListener('click',()=>{SoundEngine.play('button');winOverlay.remove();stage6Cleared=true;gameOver=false;gameOverOverlay.classList.remove('active');renderBoard();});
+                document.getElementById('backToMenuFromWinBtn').addEventListener('click',()=>{SoundEngine.play('button');winOverlay.remove();returnToMenu();});
+            }
 
             // ==================== 公告弹窗 ====================
             document.getElementById('announceBtn').addEventListener('click',()=>{SoundEngine.play('button');document.getElementById('announceOverlay').classList.add('active');});
@@ -507,7 +766,6 @@
             let compFilter='all';
 
             function loadCompendiumState() {
-                // 从存档中读取已获得道具列表
                 try {
                     const saved=localStorage.getItem(SAVE_KEY);
                     if (saved) {
@@ -531,7 +789,6 @@
                     </div>`;
                 }).join('');
                 compDetail.classList.remove('show');
-                // 绑定点击事件
                 compGrid.querySelectorAll('.comp-item').forEach(el => {
                     el.addEventListener('click', () => {
                         const id = el.dataset.id;
@@ -581,7 +838,7 @@
             const ITEM_POOL = [
                 {id:'battery',name:'步数电池',icon:'🔋',desc:'最大步数+3',type:'passive',effect:()=>{maxSteps=Math.min(40,maxSteps+3);}},
                 {id:'hourglass',name:'时间沙漏',icon:'⏳',desc:'使用后当前步数+3步',type:'active',effect:()=>{addBeltItem('hourglass');}},
-                {id:'recycle',name:'步数回收',icon:'♻️',desc:'消15块恢复1步',type:'passive',effect:()=>{hasRecycle=true;}},
+                {id:'recycle',name:'步数回收',icon:'♻️',desc:'消40块恢复1步',type:'passive',effect:()=>{hasRecycle=true;}},
                 {id:'slowrift',name:'慢速裂隙',icon:'🐢',desc:'步数消耗减半',type:'passive',effect:()=>{hasSlowRift=true;}},
                 {id:'prism',name:'彩虹棱镜',icon:'🔮',desc:'点普通块变彩虹+周围特殊块',type:'active',effect:()=>{addBeltItem('prism');}},
                 {id:'specialgen',name:'特殊块生成',icon:'✦',desc:'消30块自动生成特殊块',type:'passive',effect:()=>{hasSpecialGen=true;}},
@@ -689,10 +946,7 @@
             function startNewGame(){currentStage=1;totalScore=0;stage6Cleared=false;applyLevelConfig();score=0;maxSteps=TOTAL_STEPS;stepsLeft=maxSteps;stepsSinceLastGlitch=0;initBoard();selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;obtainedItems=[];beltItems=[];hasRecycle=hasSlowRift=hasSpecialGen=hasResonance=hasChainExt=hasRisk=hasLucky=hasMirror=hasFilter=hasPopupHell=hasVisualGlitch=false;allinActive=diceUsed=prismUsed=false;recycleCounter=0;specialGenCounter=0;halfStepToggle=false;stepsSinceLastPopup=0;stepsDisplay.style.color='#ffdb8e';crtMonitor.classList.remove('mirrored','filtered');if(visualGlitchInterval)clearInterval(visualGlitchInterval);const dots=gameScreen.querySelectorAll('.visual-glitch-dot');dots.forEach(d=>d.remove());updateHUD();gameOverOverlay.classList.remove('active');renderBoard();renderBelt();updatePassiveBar();clearGameState();saveGameState();}
             function applyLevelConfig(){const cfg=LEVELS[currentStage-1];targetScore=cfg.target;glitchInterval=cfg.glitchInterval;startGlitchCount=cfg.startGlitch;}
             function advanceToNextStage(){totalScore+=score;if(currentStage<6){currentStage++;applyLevelConfig();score=0;stepsLeft=maxSteps;stepsSinceLastGlitch=0;initBoard();selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;diceUsed=prismUsed=false;halfStepToggle=false;stepsSinceLastPopup=0;allinActive=false;stepsDisplay.style.color='#ffdb8e';beltItems.forEach(item=>item.used=false);renderBelt();updateHUD();gameOverOverlay.classList.remove('active');renderBoard();saveGameState();}}
-            function endGameWithVictory(){totalScore+=score;gameOver=true;SoundEngine.play('game_over');gameOverText.textContent='裂隙征服';gameOverScore.textContent='总得分: '+totalScore.toLocaleString();gameOverButtons.innerHTML=`<button class="restart-btn" id="finalRestartBtn">再次探索</button><button class="menu-return-btn" id="finalMenuBtn">返回主菜单</button>`;gameOverOverlay.classList.add('active');clearGameState();document.getElementById('finalRestartBtn').addEventListener('click',()=>{SoundEngine.play('button');gameOverOverlay.classList.remove('active');startNewGame();});document.getElementById('finalMenuBtn').addEventListener('click',()=>{SoundEngine.play('button');gamePage.classList.add('hidden');menuPage.classList.remove('hidden');gameOverOverlay.classList.remove('active');crtMonitor.classList.remove('mirrored','filtered');if(visualGlitchInterval)clearInterval(visualGlitchInterval);});renderBoard();}
-            function endGameWithFailure(){totalScore+=score;gameOver=true;SoundEngine.play('game_over');gameOverText.textContent='裂隙闭合';gameOverScore.textContent='总得分: '+totalScore.toLocaleString();gameOverButtons.innerHTML=`<button class="restart-btn" id="failRestartBtn">再次探索</button><button class="menu-return-btn" id="failMenuBtn">返回主菜单</button>`;gameOverOverlay.classList.add('active');clearGameState();document.getElementById('failRestartBtn').addEventListener('click',()=>{SoundEngine.play('button');gameOverOverlay.classList.remove('active');startNewGame();});document.getElementById('failMenuBtn').addEventListener('click',()=>{SoundEngine.play('button');gamePage.classList.add('hidden');menuPage.classList.remove('hidden');gameOverOverlay.classList.remove('active');crtMonitor.classList.remove('mirrored','filtered');if(visualGlitchInterval)clearInterval(visualGlitchInterval);});renderBoard();}
             function checkStageComplete(){if(gameOver||stage6Cleared)return;if(score>=targetScore){if(currentStage===6)showStage6WinDialog();else{ SoundEngine.play('level_complete'); showRewardPanel(); }}}
-            function showStage6WinDialog(){const winOverlay=document.createElement('div');winOverlay.className='game-over-overlay active';winOverlay.innerHTML=`<div class="game-over-panel"><div class="game-over-text">裂隙征服</div><div class="game-over-score">本关得分: ${score.toLocaleString()}</div><button class="restart-btn" id="continueExploreBtn">继续探索</button><button class="menu-return-btn" id="backToMenuFromWinBtn">返回主菜单</button></div>`;gameScreen.appendChild(winOverlay);document.getElementById('continueExploreBtn').addEventListener('click',()=>{SoundEngine.play('button');winOverlay.remove();stage6Cleared=true;gameOver=false;gameOverOverlay.classList.remove('active');renderBoard();});document.getElementById('backToMenuFromWinBtn').addEventListener('click',()=>{SoundEngine.play('button');winOverlay.remove();totalScore+=score;endGameWithVictory();});}
 
             // ==================== 道具奖励面板 ====================
             function showRewardPanel(){
@@ -741,14 +995,14 @@
                 let normalCleared=0;let layerScore=0;
                 for(const idx of allCleared){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]===TYPE_SPECIAL)layerScore+=30+(hasSpecialGen?20:0);else if(board[r][c]===TYPE_RAINBOW)layerScore+=50;else if(board[r][c]>=0){layerScore+=10;normalCleared++;}board[r][c]=-1;}
                 if(hasMirror)layerScore+=normalCleared*15;if(hasVisualGlitch)layerScore=Math.floor(layerScore*1.5);if(allinActive)layerScore*=2;addScore(layerScore);
-                if(hasRecycle){recycleCounter+=normalCleared;while(recycleCounter>=15){recycleCounter-=15;stepsLeft++;updateHUD();}}
+                if(hasRecycle){recycleCounter+=normalCleared;while(recycleCounter>=40){recycleCounter-=40;stepsLeft++;updateHUD();}}
                 if(hasSpecialGen){specialGenCounter+=normalCleared;while(specialGenCounter>=30){specialGenCounter-=30;const empties=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===-1)empties.push({r,c});if(empties.length>0){const pos=empties[Math.floor(Math.random()*empties.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}}}
                 applyGravityAndSpawn();renderBoard();await processChain();
                 saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();
             }
 
             // ==================== 被动计数器 ====================
-            function addSwapCounters(count){if(hasRecycle){recycleCounter+=count;while(recycleCounter>=15){recycleCounter-=15;stepsLeft++;updateHUD();}}if(hasSpecialGen){specialGenCounter+=count;}}
+            function addSwapCounters(count){if(hasRecycle){recycleCounter+=count;while(recycleCounter>=40){recycleCounter-=40;stepsLeft++;updateHUD();}}if(hasSpecialGen){specialGenCounter+=count;}}
             function checkAndSpawnSpecialGen(){if(!hasSpecialGen)return;while(specialGenCounter>=30){specialGenCounter-=30;const empties=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===-1)empties.push({r,c});if(empties.length>0){const pos=empties[Math.floor(Math.random()*empties.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}}}
 
             // ==================== 交换与消除逻辑 ====================
