@@ -191,6 +191,9 @@
             animation: filterHlPulse 0.85s steps(2) infinite;
             z-index: 3;
         }
+        .cell.filter-highlight.selected {
+            border-color: #fcee4a !important;
+        }
         @keyframes filterHlPulse {
             0%,100%{box-shadow:0 0 5px var(--hl-color,#fff),inset 0 0 3px var(--hl-color,#fff);}
             50%{box-shadow:0 0 11px var(--hl-color,#fff),inset 0 0 6px var(--hl-color,#fff);}
@@ -305,7 +308,7 @@
                     <button class="menu-btn" id="compendiumBtn">道 具 图 鉴</button>
                 </div>
                 <div class="small-btns"><button class="small-btn" id="settingsBtn">设 定</button><button class="small-btn" id="aboutBtn">关 于</button><button class="small-btn" id="rulesBtn">📋 规则</button></div>
-                <span class="version-text">ver 2.2.0</span>
+                <span class="version-text">ver 2.2.1</span>
                 <div class="announcement-btn" id="announceBtn">📢 公告</div>
                 <div class="popup-overlay" id="announceOverlay"><div class="popup-box"><span class="popup-close" id="closeAnnounce">✕</span><p>2026年10月2日——重做了"彩色滤镜"道具，更名为"色相轮盘"，<br>效果由"紫色方块得分×2"改为"每3步高亮一种颜色，消除该色本批+200分"<br>2026年6月9日——加入了新手规则按钮功能，<br>同时修改了"步数回收"道具的效果<br>15->40<br>2026年5月27日——实装了道具图鉴按钮的功能，并加入了声音，<br>同时修改了"特殊块生成"道具的效果<br>12->30<br>2026年5月26日——新加入了关卡和道具系统<br>2026年5月22日——裂隙回响测试版推出</p></div></div>
                 <div class="popup-overlay" id="settingsOverlay">
@@ -383,7 +386,7 @@
                         <input type="radio" name="room-item" id="r-none" class="scene-radio" checked>
                         <input type="radio" name="room-item" id="r-pc" class="scene-radio"><input type="radio" name="room-item" id="r-photo" class="scene-radio"><input type="radio" name="room-item" id="r-bookshelf" class="scene-radio"><input type="radio" name="room-item" id="r-window" class="scene-radio">
                         <label for="r-pc" class="interactive computer"></label><label for="r-photo" class="interactive photo-frame"></label><label for="r-bookshelf" class="interactive bookshelf"><span class="book"></span><span class="book"></span><span class="book"></span><span class="book"></span></label><div class="window"></div><label for="r-window" class="interactive window" style="background:transparent;border:none;"></label>
-                        <div class="info-bubble pc-info"><label for="r-none" class="bubble-close">✕</label><strong>► 老旧终端</strong><br>版本: v2.2.0<br>开发者: 与君</div>
+                        <div class="info-bubble pc-info"><label for="r-none" class="bubble-close">✕</label><strong>► 老旧终端</strong><br>版本: v2.2.1<br>开发者: 与君</div>
                         <div class="info-bubble photo-info"><label for="r-none" class="bubble-close">✕</label><strong>► 像素合影</strong><br>依稀可以看到你和其他人的身影...</div>
                         <div class="info-bubble bookshelf-info"><label for="r-none" class="bubble-close">✕</label><strong>► 灵感书架</strong><br>《CRT维修手册》<br>《点阵字体入门》</div>
                         <div class="info-bubble window-info"><label for="r-none" class="bubble-close">✕</label><strong>► 窗外</strong><br>数据之海，紫色月光</div>
@@ -448,6 +451,7 @@
             const diceResultIcon=document.getElementById('diceResultIcon'),diceCloseBtn=document.getElementById('diceCloseBtn');
             const gameScreen=document.getElementById('gameScreen');
             const SAVE_KEY='riftEchoSave';
+            const COMP_KEY='riftEchoCompendium';
             const TUTORIAL_KEY='riftTutorialSeen';
 
             const SoundEngine = {
@@ -619,6 +623,8 @@
                 if(visualGlitchInterval)clearInterval(visualGlitchInterval);
                 const dots=gameScreen.querySelectorAll('.visual-glitch-dot');
                 dots.forEach(d=>d.remove());
+                const glowOverlay=document.getElementById('filterGlowOverlay');
+                if(glowOverlay)glowOverlay.style.removeProperty('--filter-glow');
             }
 
             document.getElementById('backToMenuBtn').addEventListener('click',()=>{
@@ -659,13 +665,21 @@
 
             function loadCompendiumState() {
                 try {
-                    const saved=localStorage.getItem(SAVE_KEY);
+                    const saved=localStorage.getItem(COMP_KEY);
                     if (saved) {
-                        const state=JSON.parse(saved);
-                        return state.obtainedItems || [];
+                        const data=JSON.parse(saved);
+                        if (Array.isArray(data)) return data;
                     }
                 } catch(e){}
                 return [];
+            }
+
+            function addToCompendium(itemId) {
+                const list = loadCompendiumState();
+                if (!list.includes(itemId)) {
+                    list.push(itemId);
+                    try { localStorage.setItem(COMP_KEY, JSON.stringify(list)); } catch(e){}
+                }
             }
 
             function renderCompendium(filter='all') {
@@ -830,7 +844,8 @@
                     allinActive,diceUsed,prismUsed,
                     recycleCounter,specialGenCounter,
                     stepsSinceLastPopup,halfStepToggle,
-                    maxCombo,activeItemUses,specialCount,rainbowCount,resonanceCount
+                    maxCombo,activeItemUses,specialCount,rainbowCount,resonanceCount,
+                    filterHighlightColor,filterStepCounter
                 }));
             }
 
@@ -879,6 +894,13 @@
                     rainbowCount=state.rainbowCount??0;
                     resonanceCount=state.resonanceCount??0;
 
+                    filterHighlightColor=state.filterHighlightColor??-1;
+                    filterStepCounter=state.filterStepCounter??0;
+                    if(hasFilter&&(filterHighlightColor<0||filterHighlightColor>=COLORS)){
+                        filterHighlightColor=Math.floor(Math.random()*COLORS);
+                        filterStepCounter=0;
+                    }
+
                     selectedRow=selectedCol=-1;
                     isProcessing=false;
                     comboCount=0;
@@ -896,8 +918,6 @@
                     glitchWarning.classList.remove('show');
                     totalPopup.style.display='none';
                     stepsDisplay.style.color=allinActive?'#ff4444':'#ffdb8e';
-
-                    if(hasFilter) initFilterWheel();
 
                     updateHUD();
                     applyAllVisuals();
@@ -1054,7 +1074,7 @@
                 if (selected.length === 0) { advanceToNextStage(); return; }
                 rewardCards.innerHTML = selected.map(item => `<div class="reward-card" data-id="${item.id}"><div class="reward-icon">${item.icon}</div><div class="reward-name">${item.name}</div><div class="reward-desc">${item.desc}</div></div>`).join('');
                 rewardOverlay.classList.add('active');
-                rewardCards.querySelectorAll('.reward-card').forEach(card => { card.addEventListener('click', () => { const id = card.dataset.id; const item = ITEM_POOL.find(it => it.id === id); if (item) { item.effect(); obtainedItems.push(id); SoundEngine.play('item_get'); updatePassiveBar(); } rewardOverlay.classList.remove('active'); advanceToNextStage(); }); });
+                rewardCards.querySelectorAll('.reward-card').forEach(card => { card.addEventListener('click', () => { const id = card.dataset.id; const item = ITEM_POOL.find(it => it.id === id); if (item) { item.effect(); obtainedItems.push(id); addToCompendium(id); SoundEngine.play('item_get'); updatePassiveBar(); } rewardOverlay.classList.remove('active'); advanceToNextStage(); }); });
             }
 
             function countGlitchOnBoard(){let count=0;for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===TYPE_GLITCH)count++;return count;}
@@ -1067,10 +1087,10 @@
 
             async function triggerPrism(row,col){if(isProcessing||gameOver||!prismMode||board[row][col]<0||board[row][col]>=COLORS)return;isProcessing=true;prismMode=false;const startScore=score;board[row][col]=TYPE_RAINBOW;rainbowCount++;const positions=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=row+dr,nc=col+dc;if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)positions.push({r:nr,c:nc});}if(positions.length>0){const pos=positions[Math.floor(Math.random()*positions.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
 
-            async function triggerResonance(rRainbow,cRainbow,rSpecial,cSpecial){if(isProcessing||gameOver)return;SoundEngine.play('resonance');resonanceCount++;const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[];let clearCount=0;for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++){const v=board[rr][cc];if(v>=0&&v<COLORS){toClear.push({r:rr,c:cc});clearCount++;}else if(v===TYPE_GLITCH)toClear.push({r:rr,c:cc});}toClear.push({r:rRainbow,c:cRainbow});toClear.push({r:rSpecial,c:cSpecial});const flash=document.createElement('div');flash.className='flash-overlay';gameScreen.appendChild(flash);setTimeout(()=>flash.remove(),500);boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);for(const pos of toClear)board[pos.r][pos.c]=-1;let resonanceScore=clearCount*10+50+30;if(hasResonance)resonanceScore=clearCount*20+50+30;if(hasMirror)resonanceScore+=clearCount*15;if(hasVisualGlitch)resonanceScore=Math.floor(resonanceScore*1.5);if(allinActive)resonanceScore*=2;addScore(resonanceScore);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
+            async function triggerResonance(rRainbow,cRainbow,rSpecial,cSpecial){if(isProcessing||gameOver)return;SoundEngine.play('resonance');resonanceCount++;const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[];let clearCount=0;let hasHl=false;for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++){const v=board[rr][cc];if(v>=0&&v<COLORS){toClear.push({r:rr,c:cc});clearCount++;if(hasFilter&&v===filterHighlightColor)hasHl=true;}else if(v===TYPE_GLITCH)toClear.push({r:rr,c:cc});}toClear.push({r:rRainbow,c:cRainbow});toClear.push({r:rSpecial,c:cSpecial});const flash=document.createElement('div');flash.className='flash-overlay';gameScreen.appendChild(flash);setTimeout(()=>flash.remove(),500);boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);for(const pos of toClear)board[pos.r][pos.c]=-1;let resonanceScore=clearCount*10+50+30;if(hasResonance)resonanceScore=clearCount*20+50+30;if(hasMirror)resonanceScore+=clearCount*15;if(hasVisualGlitch)resonanceScore=Math.floor(resonanceScore*1.5);if(allinActive)resonanceScore*=2;addScore(resonanceScore);if(hasHl)addScore(FILTER_BONUS);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
             function shatterCell(cell){if(!cell||cell.classList.contains('shattering'))return;cell.classList.add('shattering');for(let i=1;i<=4;i++){const shard=document.createElement('div');shard.className='shard';shard.style.animation=`shard${i} 0.4s ease-out forwards`;cell.appendChild(shard);}setTimeout(()=>{cell.querySelectorAll('.shard').forEach(s=>s.remove());cell.classList.remove('shattering');},400);}
 
-            async function triggerRainbow(r,c,color){if(isProcessing||gameOver)return;SoundEngine.play('rainbow');rainbowCount++;const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[{r,c}];for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++)if(board[rr][cc]===color)toClear.push({r:rr,c:cc});boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);let clearCount=0;for(const pos of toClear){if(board[pos.r][pos.c]>=0)clearCount++;board[pos.r][pos.c]=-1;}let rainbowScore=clearCount*10+50;if(hasMirror)rainbowScore+=clearCount*15;if(hasVisualGlitch)rainbowScore=Math.floor(rainbowScore*1.5);if(allinActive)rainbowScore*=2;addScore(rainbowScore);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
+            async function triggerRainbow(r,c,color){if(isProcessing||gameOver)return;SoundEngine.play('rainbow');rainbowCount++;const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[{r,c}];for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++)if(board[rr][cc]===color)toClear.push({r:rr,c:cc});boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);let clearCount=0;for(const pos of toClear){if(board[pos.r][pos.c]>=0)clearCount++;board[pos.r][pos.c]=-1;}let rainbowScore=clearCount*10+50;if(hasMirror)rainbowScore+=clearCount*15;if(hasVisualGlitch)rainbowScore=Math.floor(rainbowScore*1.5);if(allinActive)rainbowScore*=2;addScore(rainbowScore);if(hasFilter&&color===filterHighlightColor)addScore(FILTER_BONUS);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
 
             async function triggerSpecial(row,col){
                 if(isProcessing||gameOver)return;SoundEngine.play('special');specialCount++;const startScore=score;isProcessing=true;
@@ -1079,9 +1099,9 @@
                 while(queue.length>0){const current=queue.shift();for(let dr=-range;dr<=range;dr++)for(let dc=-range;dc<=range;dc++){const nr=current.r+dr,nc=current.c+dc;if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&!allCleared.has(nr*COLS+nc)){allCleared.add(nr*COLS+nc);if(board[nr][nc]===TYPE_SPECIAL||board[nr][nc]===TYPE_RAINBOW)queue.push({r:nr,c:nc});}}}
                 boardEl.querySelectorAll('.cell').forEach(cell=>{const cr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(allCleared.has(cr*COLS+cc))shatterCell(cell);});
                 await sleep(400);
-                let normalCleared=0;let layerScore=0;
-                for(const idx of allCleared){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]===TYPE_SPECIAL)layerScore+=30+(hasSpecialGen?20:0);else if(board[r][c]===TYPE_RAINBOW)layerScore+=50;else if(board[r][c]>=0){layerScore+=10;normalCleared++;}board[r][c]=-1;}
-                if(hasMirror)layerScore+=normalCleared*15;if(hasVisualGlitch)layerScore=Math.floor(layerScore*1.5);if(allinActive)layerScore*=2;addScore(layerScore);
+                let normalCleared=0;let layerScore=0;let hasHl=false;
+                for(const idx of allCleared){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]===TYPE_SPECIAL)layerScore+=30+(hasSpecialGen?20:0);else if(board[r][c]===TYPE_RAINBOW)layerScore+=50;else if(board[r][c]>=0){layerScore+=10;normalCleared++;if(hasFilter&&board[r][c]===filterHighlightColor)hasHl=true;}board[r][c]=-1;}
+                if(hasMirror)layerScore+=normalCleared*15;if(hasVisualGlitch)layerScore=Math.floor(layerScore*1.5);if(allinActive)layerScore*=2;addScore(layerScore);if(hasHl)addScore(FILTER_BONUS);
                 if(hasRecycle){recycleCounter+=normalCleared;while(recycleCounter>=40){recycleCounter-=40;stepsLeft++;updateHUD();}}
                 if(hasSpecialGen){specialGenCounter+=normalCleared;while(specialGenCounter>=30){specialGenCounter-=30;const empties=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===-1)empties.push({r,c});if(empties.length>0){const pos=empties[Math.floor(Math.random()*empties.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}}}
                 applyGravityAndSpawn();renderBoard();await processChain();
