@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>裂隙回响 · 像素三消</title>
     <style>
-        /* ==================== 全局基础样式 ==================== */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             background:#000; min-height:100vh; display:flex; justify-content:center; align-items:center;
             font-family:'Press Start 2P',monospace; padding:0; image-rendering:pixelated;
             -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; overflow:hidden;
         }
-
-        /* ==================== CRT 显示器外壳 ==================== */
         .crt-monitor {
             background:#0b0b12; border:8px solid #3d3d4a; border-radius:0;
             box-shadow:inset 0 0 40px rgba(0,0,0,0.85); padding:8px 8px 6px; position:relative;
@@ -26,9 +23,6 @@
             pointer-events:none; z-index:10;
         }
         .crt-monitor.mirrored .board-container,.crt-monitor.mirrored .hud,.crt-monitor.mirrored .item-belt,.crt-monitor.mirrored .passive-bar { transform: scaleX(-1); }
-        .crt-monitor.filtered { filter: sepia(0.6) hue-rotate(-80deg); }
-
-        /* ==================== 屏幕内部容器 ==================== */
         .screen-inner {
             position:relative; background:#12101c; border:3px solid #4a4a5c; border-radius:2px;
             padding:10px 8px 6px; display:flex; flex-direction:column; align-items:center; gap:6px;
@@ -40,12 +34,8 @@
             animation:screenFlicker 4s infinite; border-radius:1px;
         }
         @keyframes screenFlicker { 0%,99.5%,100%{opacity:0;} 99.6%{opacity:0.3;} }
-
-        /* ==================== 页面切换 ==================== */
         .page { position:relative; z-index:2; width:100%; flex:1; display:flex; flex-direction:column; align-items:center; min-height:0; overflow:hidden; }
         .page.hidden { display:none; }
-
-        /* ==================== 开始菜单页 ==================== */
         .menu-page { justify-content:center; gap:40px; }
         .title-area { display:flex; flex-direction:column; align-items:center; gap:6px; }
         .main-title {
@@ -88,8 +78,6 @@
             color:#fde8b5; font-size:7px; padding:3px 8px; cursor:pointer;
         }
         .version-text { font-size:6px; color:#4a3d5c; }
-
-        /* ==================== 弹窗通用样式 ==================== */
         .popup-overlay {
             position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7);
             z-index:50; display:flex; align-items:center; justify-content:center; visibility:hidden; pointer-events:none;
@@ -100,81 +88,23 @@
             color:#fde8b5; font-size:8px; position:relative; text-align:center;
         }
         .popup-close { position:absolute; top:2px; right:8px; background:none; border:none; color:#ff6161; font-size:12px; cursor:pointer; }
-
-        /* ==================== 新手引导专用样式 ==================== */
-        .tutorial-overlay {
-            z-index: 60;
-        }
-        .tutorial-box {
-            max-width: 340px;
-            width: 90%;
-            padding: 16px 12px;
-            font-size: 7px;
-            line-height: 1.8;
-        }
-        .tutorial-pages {
-            position: relative;
-        }
-        .tutorial-page {
-            display: none;
-        }
-        .tutorial-page.active {
-            display: block;
-        }
-        .tutorial-page h3 {
-            font-size: 9px;
-            color: #ffd966;
-            margin-bottom: 8px;
-        }
-        .tutorial-page p {
-            margin: 4px 0;
-        }
-        .page-indicator {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            margin: 10px 0;
-        }
-        .page-dot {
-            width: 6px;
-            height: 6px;
-            background: #4a3d5c;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .page-dot.active {
-            background: #c77dff;
-        }
-        .tutorial-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-top: 6px;
-        }
+        .tutorial-overlay { z-index: 60; }
+        .tutorial-box { max-width: 340px; width: 90%; padding: 16px 12px; font-size: 7px; line-height: 1.8; }
+        .tutorial-pages { position: relative; }
+        .tutorial-page { display: none; }
+        .tutorial-page.active { display: block; }
+        .tutorial-page h3 { font-size: 9px; color: #ffd966; margin-bottom: 8px; }
+        .tutorial-page p { margin: 4px 0; }
+        .page-indicator { display: flex; gap: 6px; justify-content: center; margin: 10px 0; }
+        .page-dot { width: 6px; height: 6px; background: #4a3d5c; border-radius: 50%; display: inline-block; }
+        .page-dot.active { background: #c77dff; }
+        .tutorial-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 6px; }
         .tutorial-nav button {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 7px;
-            background: #2a1548;
-            border: 2px solid #c77dff;
-            color: #fde8b5;
-            padding: 6px 12px;
-            cursor: pointer;
+            font-family: 'Press Start 2P', monospace; font-size: 7px;
+            background: #2a1548; border: 2px solid #c77dff; color: #fde8b5; padding: 6px 12px; cursor: pointer;
         }
-        .tutorial-skip {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 6px;
-            color: #9b8ab8;
-            margin-top: 6px;
-            justify-content: center;
-        }
-        .tutorial-skip input {
-            margin: 0;
-        }
-
-        /* ==================== 图鉴专用样式 ==================== */
+        .tutorial-skip { display: flex; align-items: center; gap: 4px; font-size: 6px; color: #9b8ab8; margin-top: 6px; justify-content: center; }
+        .tutorial-skip input { margin: 0; }
         .compendium-box { max-width:360px; width:90%; max-height:80%; overflow-y:auto; padding:10px; }
         .comp-tabs { display:flex; gap:8px; margin-bottom:8px; }
         .comp-tab { font-family:'Press Start 2P',monospace; font-size:7px; background:#2a1f35; border:2px solid #6b5c7a; color:#fde8b5; padding:4px 8px; cursor:pointer; flex:1; }
@@ -188,8 +118,6 @@
         .comp-detail .detail-name { font-size:8px; color:#ffd966; }
         .comp-detail .detail-type { font-size:6px; color:#9b8ab8; margin:2px 0; }
         .comp-detail .detail-desc { font-size:6px; color:#fde8b5; line-height:1.4; }
-
-        /* ==================== 关于房间 ==================== */
         .about-room { position:absolute; top:0; left:0; width:100%; height:100%; background:#12101c; z-index:45; display:none; flex-direction:column; align-items:center; padding:12px; gap:8px; }
         .about-room.active { display:flex; }
         .room-scene { position:relative; width:100%; height:220px; background:#2a1f35; border:3px solid #5a4a6b; margin-top:4px; overflow:hidden; }
@@ -209,11 +137,7 @@
         .info-bubble { position:absolute; bottom:6px; left:6px; right:6px; background:#0f0e1a; border:2px solid #c77dff; padding:6px; color:#fde8b5; font-size:12px; line-height:1.6; display:none; z-index:20; }
         .scene-radio{display:none} #r-none:checked~.info-bubble{display:none} #r-pc:checked~.pc-info{display:block} #r-photo:checked~.photo-info{display:block} #r-bookshelf:checked~.bookshelf-info{display:block} #r-window:checked~.window-info{display:block}
         .bubble-close{position:absolute;top:1px;right:4px;color:#ff6161;cursor:pointer;font-size:8px}
-
-        /* ==================== 游戏主页面 ==================== */
         .game-page { gap:4px; }
-
-        /* ==================== HUD 顶部状态栏 ==================== */
         .hud {
             width:100%; display:flex; justify-content:space-between; align-items:center; background:#2a2135;
             border:2px solid #5d4e6e; padding:6px 8px; box-shadow:inset 0 -2px 0 #1f1728;
@@ -238,8 +162,6 @@
         @keyframes pixelBlink { 0%,100%{opacity:1} 50%{opacity:0.5} }
         .steps-display { color:#ffdb8e; font-size:10px; }
         .steps-display.warning { color:#ff6161; animation:pixelBlink 0.6s steps(2) infinite; }
-
-        /* ==================== 棋盘 ==================== */
         .board-container { flex:1; display:flex; align-items:center; justify-content:center; }
         .board {
             display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);
@@ -264,6 +186,15 @@
         @keyframes rainbowPulse { 0%{filter:hue-rotate(0deg)} 33%{filter:hue-rotate(120deg)} 66%{filter:hue-rotate(240deg)} 100%{filter:hue-rotate(360deg)} }
         .cell.rainbow-selected { border-color:#fff !important; box-shadow:0 0 16px #fff,0 0 24px #ff0 !important; }
         .cell.selected { border-color:#fcee4a !important; box-shadow:0 0 12px #ffb703; }
+        .cell.filter-highlight {
+            border-color: rgba(255,255,255,0.8) !important;
+            animation: filterHlPulse 0.85s steps(2) infinite;
+            z-index: 3;
+        }
+        @keyframes filterHlPulse {
+            0%,100%{box-shadow:0 0 5px var(--hl-color,#fff),inset 0 0 3px var(--hl-color,#fff);}
+            50%{box-shadow:0 0 11px var(--hl-color,#fff),inset 0 0 6px var(--hl-color,#fff);}
+        }
         .cell.shattering { animation:shatter 0.4s ease-out forwards; }
         @keyframes shatter { 0%{transform:scale(1);opacity:1} 20%{transform:scale(1.2);opacity:1} 100%{transform:scale(0.2);opacity:0} }
         .shard { position:absolute; width:8px; height:8px; background:inherit; pointer-events:none; z-index:10; }
@@ -273,8 +204,6 @@
         @keyframes shard4 { 0%{opacity:1; transform:translate(0,0);} 100%{opacity:0; transform:translate(12px,12px) rotate(45deg);} }
         .cell.new-spawn { animation:spawnIn 0.25s; }
         @keyframes spawnIn { 0%{transform:scale(0.3);opacity:0} 100%{transform:scale(1);opacity:1} }
-
-        /* ==================== 道具腰带 ==================== */
         .item-belt {
             width:100%; background:#2b2538; border:2px solid #6b5c7a; padding:4px 6px;
             display:flex; align-items:center; gap:6px; flex-shrink:0; flex-wrap:wrap;
@@ -290,8 +219,6 @@
             background:#2a1111; border:2px solid #ff4444; padding:2px 5px;
         }
         .glitch-warning.show { display:inline-block; }
-
-        /* ==================== 结算弹窗 ==================== */
         .game-over-overlay {
             position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8);
             z-index:30; display:flex; align-items:center; justify-content:center; flex-direction:column;
@@ -301,8 +228,6 @@
         .game-over-panel { background:#1f1730; border:4px solid #c77dff; padding:16px; text-align:center; color:#fde8b5; }
         .game-over-text { font-size:14px; margin-bottom:6px; }
         .restart-btn,.menu-return-btn { font-family:'Press Start 2P',monospace; font-size:8px; background:#2a1548; border:2px solid #c77dff; color:#fde8b5; padding:6px 12px; cursor:pointer; margin:3px; }
-
-        /* ==================== 道具奖励面板 ==================== */
         .reward-overlay {
             position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85);
             z-index:40; display:none; align-items:center; justify-content:center; flex-direction:column; gap:10px;
@@ -320,16 +245,12 @@
         .reward-icon { font-size:20px; margin-bottom:4px; }
         .reward-name { font-size:8px; color:#ffd966; margin-bottom:3px; }
         .reward-desc { font-size:5px; color:#cbbae0; line-height:1.3; }
-
-        /* ==================== 全屏闪烁效果 ==================== */
         .flash-overlay {
             position:absolute; top:0; left:0; width:100%; height:100%;
             background:white; opacity:0; pointer-events:none; z-index:100;
             animation:flashIn 0.5s ease-out forwards;
         }
         @keyframes flashIn { 0%{opacity:0.8;} 100%{opacity:0;} }
-
-        /* ==================== 界面扭曲效果 ==================== */
         .visual-glitch-dot {
             position:absolute; width:5px; height:5px; background:#000;
             pointer-events:none; z-index:15; animation:dotFlicker 0.4s steps(1) infinite;
@@ -345,8 +266,6 @@
         @keyframes popupBounce { 0%{transform:scale(0.5);opacity:0;} 100%{transform:scale(1);opacity:1;} }
         .popup-title { background:#ff44ff; color:#000; padding:2px 6px; margin:-8px -10px 6px -10px; font-size:8px; }
         .popup-btn { margin-top:6px; padding:3px 12px; background:#3d1f3a; border:2px solid #ff44ff; color:#ff88ff; font-family:'Press Start 2P',monospace; font-size:7px; cursor:pointer; }
-
-        /* ==================== 骰子弹窗 ==================== */
         .dice-popup-overlay {
             position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85);
             z-index:100 !important; display:none; align-items:center; justify-content:center; flex-direction:column; gap:8px;
@@ -356,14 +275,15 @@
         .dice-result-icon { font-size:48px; margin:8px 0; animation:diceRoll 0.4s steps(6); }
         @keyframes diceRoll { 0%{transform:rotate(0deg);} 16%{transform:rotate(60deg);} 33%{transform:rotate(120deg);} 50%{transform:rotate(180deg);} 66%{transform:rotate(240deg);} 83%{transform:rotate(300deg);} 100%{transform:rotate(360deg);} }
         .dice-close-btn { font-family:'Press Start 2P',monospace; font-size:8px; background:#2a1548; border:2px solid #c77dff; color:#fde8b5; padding:6px 14px; cursor:pointer; }
-
-        /* ==================== 被动道具提示栏 ==================== */
         .passive-bar {
             width:100%; background:#0a1a1a; border:1px solid #2a4a4a; padding:2px 6px;
             display:flex; align-items:center; gap:3px; flex-wrap:wrap; font-size:5px; color:#5cf; flex-shrink:0;
         }
-
-        /* ==================== 桌面端适配 ==================== */
+        .filter-glow-overlay {
+            position: absolute; inset: 0; pointer-events: none; z-index: 12;
+            background: radial-gradient(circle at 50% 50%, transparent 32%, var(--filter-glow, transparent) 100%);
+            opacity: 0.3; mix-blend-mode: screen; transition: background 0.5s;
+        }
         @media (min-width:768px) {
             body{background:#0d0b14;padding:20px;overflow:auto}
             .crt-monitor{border:14px solid #3d3d4a;border-radius:20px;box-shadow:inset 0 0 80px rgba(0,0,0,0.85),0 0 0 5px #1e1e28,0 0 0 10px #0a0a0f;padding:20px 24px 24px;width:auto;max-width:600px;height:auto;transform:scale(1.5);transform-origin:center center}
@@ -375,7 +295,7 @@
 <body>
     <div class="crt-monitor" id="crtMonitor">
         <div class="screen-inner" id="gameScreen">
-            <!-- ==================== 开始菜单页 ==================== -->
+            <div class="filter-glow-overlay" id="filterGlowOverlay"></div>
             <div class="page menu-page" id="menuPage">
                 <div class="title-area"><h1 class="main-title">裂 隙 回 响</h1><p class="subtitle">▸ PIXEL MATCH ▸</p></div>
                 <div class="gem-row"><span class="gem-icon">◆</span><span class="gem-icon">◆</span><span class="gem-icon">◆</span><span class="gem-icon">◆</span><span class="gem-icon">◆</span></div>
@@ -385,9 +305,9 @@
                     <button class="menu-btn" id="compendiumBtn">道 具 图 鉴</button>
                 </div>
                 <div class="small-btns"><button class="small-btn" id="settingsBtn">设 定</button><button class="small-btn" id="aboutBtn">关 于</button><button class="small-btn" id="rulesBtn">📋 规则</button></div>
-                <span class="version-text">ver 2.1.1</span>
+                <span class="version-text">ver 2.2.0</span>
                 <div class="announcement-btn" id="announceBtn">📢 公告</div>
-                <div class="popup-overlay" id="announceOverlay"><div class="popup-box"><span class="popup-close" id="closeAnnounce">✕</span><p>2026年6月9日——加入了新手规则按钮功能，<br>同时修改了“步数回收”道具的效果<br>15->40<br>2026年5月27日——实装了道具图鉴按钮的功能，并加入了声音，<br>同时修改了"特殊块生成"道具的效果<br>12->30<br>2026年5月26日——新加入了关卡和道具系统<br>2026年5月22日——裂隙回响测试版推出</p></div></div>
+                <div class="popup-overlay" id="announceOverlay"><div class="popup-box"><span class="popup-close" id="closeAnnounce">✕</span><p>2026年10月2日——重做了"彩色滤镜"道具，更名为"色相轮盘"，<br>效果由"紫色方块得分×2"改为"每3步高亮一种颜色，消除该色本批+200分"<br>2026年6月9日——加入了新手规则按钮功能，<br>同时修改了"步数回收"道具的效果<br>15->40<br>2026年5月27日——实装了道具图鉴按钮的功能，并加入了声音，<br>同时修改了"特殊块生成"道具的效果<br>12->30<br>2026年5月26日——新加入了关卡和道具系统<br>2026年5月22日——裂隙回响测试版推出</p></div></div>
                 <div class="popup-overlay" id="settingsOverlay">
                     <div class="popup-box" style="text-align:left;">
                         <span class="popup-close" id="closeSettings">✕</span>
@@ -396,7 +316,6 @@
                         <div id="resetFeedback" style="color:#5cf25c;font-size:7px;text-align:center;margin-top:4px;display:none;">存档已清除</div>
                     </div>
                 </div>
-                <!-- 新手引导弹窗 -->
                 <div class="popup-overlay tutorial-overlay" id="tutorialOverlay" style="display:none">
                     <div class="popup-box tutorial-box">
                         <span class="popup-close" id="closeTutorialBtn">✕</span>
@@ -446,7 +365,6 @@
                         <button class="menu-return-btn" id="tutorialStartBtn" style="display:none; margin-top:6px;">开始裂隙探索 ▶</button>
                     </div>
                 </div>
-                <!-- 道具图鉴弹窗 -->
                 <div class="popup-overlay" id="compendiumOverlay">
                     <div class="popup-box compendium-box">
                         <span class="popup-close" id="closeCompendium">✕</span>
@@ -465,7 +383,7 @@
                         <input type="radio" name="room-item" id="r-none" class="scene-radio" checked>
                         <input type="radio" name="room-item" id="r-pc" class="scene-radio"><input type="radio" name="room-item" id="r-photo" class="scene-radio"><input type="radio" name="room-item" id="r-bookshelf" class="scene-radio"><input type="radio" name="room-item" id="r-window" class="scene-radio">
                         <label for="r-pc" class="interactive computer"></label><label for="r-photo" class="interactive photo-frame"></label><label for="r-bookshelf" class="interactive bookshelf"><span class="book"></span><span class="book"></span><span class="book"></span><span class="book"></span></label><div class="window"></div><label for="r-window" class="interactive window" style="background:transparent;border:none;"></label>
-                        <div class="info-bubble pc-info"><label for="r-none" class="bubble-close">✕</label><strong>► 老旧终端</strong><br>版本: v2.1.1<br>开发者: 与君</div>
+                        <div class="info-bubble pc-info"><label for="r-none" class="bubble-close">✕</label><strong>► 老旧终端</strong><br>版本: v2.2.0<br>开发者: 与君</div>
                         <div class="info-bubble photo-info"><label for="r-none" class="bubble-close">✕</label><strong>► 像素合影</strong><br>依稀可以看到你和其他人的身影...</div>
                         <div class="info-bubble bookshelf-info"><label for="r-none" class="bubble-close">✕</label><strong>► 灵感书架</strong><br>《CRT维修手册》<br>《点阵字体入门》</div>
                         <div class="info-bubble window-info"><label for="r-none" class="bubble-close">✕</label><strong>► 窗外</strong><br>数据之海，紫色月光</div>
@@ -473,8 +391,6 @@
                     <button class="small-btn" id="closeAboutRoom">◀ 返回</button>
                 </div>
             </div>
-
-            <!-- ==================== 游戏页面 ==================== -->
             <div class="page game-page hidden" id="gamePage">
                 <div class="hud">
                     <div class="hud-item"><span class="level-label" id="levelDisplay">第1关</span></div>
@@ -519,7 +435,6 @@
     </div>
     <script>
         (function(){
-            // ==================== DOM 元素引用 ====================
             const menuPage=document.getElementById('menuPage'),gamePage=document.getElementById('gamePage'),crtMonitor=document.getElementById('crtMonitor');
             const boardEl=document.getElementById('board'),scoreDisplay=document.getElementById('scoreDisplay'),stepsDisplay=document.getElementById('stepsDisplay');
             const comboIndicator=document.getElementById('comboIndicator'),gameOverOverlay=document.getElementById('gameOverOverlay');
@@ -535,7 +450,6 @@
             const SAVE_KEY='riftEchoSave';
             const TUTORIAL_KEY='riftTutorialSeen';
 
-            // ==================== 音效引擎 ====================
             const SoundEngine = {
                 ctx: null,
                 gainNode: null,
@@ -591,7 +505,6 @@
                 }
             };
 
-            // ==================== 新手引导逻辑 ====================
             const tutorialOverlay = document.getElementById('tutorialOverlay');
             const tutorialPages = document.querySelectorAll('.tutorial-page');
             const pageDots = document.querySelectorAll('.page-dot');
@@ -696,14 +609,13 @@
             });
             startBtn.addEventListener('click', handleTutorialStartClick);
 
-            // ==================== 通用返回主菜单函数（强制清理引导弹窗） ====================
             function returnToMenu() {
-                closeTutorial(); // 关闭引导弹窗，设置为 display:none
+                closeTutorial();
                 gamePage.classList.add('hidden');
                 menuPage.classList.remove('hidden');
                 gameOverOverlay.classList.remove('active');
                 rainbowMode=null;
-                crtMonitor.classList.remove('mirrored','filtered');
+                crtMonitor.classList.remove('mirrored');
                 if(visualGlitchInterval)clearInterval(visualGlitchInterval);
                 const dots=gameScreen.querySelectorAll('.visual-glitch-dot');
                 dots.forEach(d=>d.remove());
@@ -717,40 +629,21 @@
                 SoundEngine.play('button');
                 returnToMenu();
             });
-            document.getElementById('continueBtn').addEventListener('click',()=>{SoundEngine.play('button');if(loadGameState()){menuPage.classList.add('hidden');gamePage.classList.remove('hidden');}else alert('暂无存档');});
+            document.getElementById('continueBtn').addEventListener('click',()=>{
+                SoundEngine.play('button');
+                if(!localStorage.getItem(SAVE_KEY)){alert('暂无存档');return;}
+                menuPage.classList.add('hidden');
+                gamePage.classList.remove('hidden');
+                if(!loadGameState()){
+                    alert('存档损坏，无法继续');
+                    menuPage.classList.remove('hidden');
+                    gamePage.classList.add('hidden');
+                }
+            });
 
-            // ==================== 重写游戏结束函数，确保其返回按钮也调用 returnToMenu ====================
-            function endGameWithVictory(){
-                totalScore+=score;gameOver=true;SoundEngine.play('game_over');
-                gameOverText.textContent='裂隙征服';gameOverScore.textContent='总得分: '+totalScore.toLocaleString();
-                gameOverButtons.innerHTML=`<button class="restart-btn" id="finalRestartBtn">再次探索</button><button class="menu-return-btn" id="finalMenuBtn">返回主菜单</button>`;
-                gameOverOverlay.classList.add('active');clearGameState();
-                document.getElementById('finalRestartBtn').addEventListener('click',()=>{SoundEngine.play('button');gameOverOverlay.classList.remove('active');startNewGame();});
-                document.getElementById('finalMenuBtn').addEventListener('click',()=>{SoundEngine.play('button');returnToMenu();});
-                renderBoard();
-            }
-            function endGameWithFailure(){
-                totalScore+=score;gameOver=true;SoundEngine.play('game_over');
-                gameOverText.textContent='裂隙闭合';gameOverScore.textContent='总得分: '+totalScore.toLocaleString();
-                gameOverButtons.innerHTML=`<button class="restart-btn" id="failRestartBtn">再次探索</button><button class="menu-return-btn" id="failMenuBtn">返回主菜单</button>`;
-                gameOverOverlay.classList.add('active');clearGameState();
-                document.getElementById('failRestartBtn').addEventListener('click',()=>{SoundEngine.play('button');gameOverOverlay.classList.remove('active');startNewGame();});
-                document.getElementById('failMenuBtn').addEventListener('click',()=>{SoundEngine.play('button');returnToMenu();});
-                renderBoard();
-            }
-            function showStage6WinDialog(){
-                const winOverlay=document.createElement('div');winOverlay.className='game-over-overlay active';
-                winOverlay.innerHTML=`<div class="game-over-panel"><div class="game-over-text">裂隙征服</div><div class="game-over-score">本关得分: ${score.toLocaleString()}</div><button class="restart-btn" id="continueExploreBtn">继续探索</button><button class="menu-return-btn" id="backToMenuFromWinBtn">返回主菜单</button></div>`;
-                gameScreen.appendChild(winOverlay);
-                document.getElementById('continueExploreBtn').addEventListener('click',()=>{SoundEngine.play('button');winOverlay.remove();stage6Cleared=true;gameOver=false;gameOverOverlay.classList.remove('active');renderBoard();});
-                document.getElementById('backToMenuFromWinBtn').addEventListener('click',()=>{SoundEngine.play('button');winOverlay.remove();returnToMenu();});
-            }
-
-            // ==================== 公告弹窗 ====================
             document.getElementById('announceBtn').addEventListener('click',()=>{SoundEngine.play('button');document.getElementById('announceOverlay').classList.add('active');});
             document.getElementById('closeAnnounce').addEventListener('click',()=>document.getElementById('announceOverlay').classList.remove('active'));
 
-            // ==================== 设定面板 ====================
             const settingsOverlay=document.getElementById('settingsOverlay');
             document.getElementById('settingsBtn').addEventListener('click',()=>{SoundEngine.play('button');settingsOverlay.classList.add('active');});
             document.getElementById('closeSettings').addEventListener('click',()=>settingsOverlay.classList.remove('active'));
@@ -758,7 +651,6 @@
             const resetSaveBtn=document.getElementById('resetSaveBtn'),resetFeedback=document.getElementById('resetFeedback');
             resetSaveBtn.addEventListener('click',()=>{if(resetSaveBtn.textContent==='重置存档'){resetSaveBtn.textContent='确定重置？';}else{localStorage.clear();volumeSlider.value=7;resetFeedback.style.display='block';resetSaveBtn.textContent='重置存档';setTimeout(()=>resetFeedback.style.display='none',2000);}});
 
-            // ==================== 道具图鉴 ====================
             const compendiumOverlay=document.getElementById('compendiumOverlay');
             const compGrid=document.getElementById('compGrid');
             const compDetail=document.getElementById('compDetail');
@@ -823,18 +715,15 @@
                 });
             });
 
-            // ==================== 关于房间 ====================
             const aboutRoom=document.getElementById('aboutRoom');
             document.getElementById('aboutBtn').addEventListener('click',()=>{SoundEngine.play('button');aboutRoom.classList.add('active');document.getElementById('r-none').checked=true;});
             document.getElementById('closeAboutRoom').addEventListener('click',()=>aboutRoom.classList.remove('active'));
 
-            // ==================== 游戏常量 ====================
             const ROWS=8,COLS=8,COLORS=5,COLOR_CLASSES=['red','blue','green','yellow','purple'];
             const TYPE_GLITCH=-2,TYPE_SPECIAL=-3,TYPE_RAINBOW=-4;
             const TOTAL_STEPS=24;
             const LEVELS=[{target:2000,glitchInterval:5,startGlitch:0},{target:3000,glitchInterval:5,startGlitch:0},{target:5000,glitchInterval:4,startGlitch:0},{target:7000,glitchInterval:4,startGlitch:3},{target:9000,glitchInterval:3,startGlitch:5},{target:15000,glitchInterval:3,startGlitch:8}];
 
-            // ==================== 道具池定义 ====================
             const ITEM_POOL = [
                 {id:'battery',name:'步数电池',icon:'🔋',desc:'最大步数+3',type:'passive',effect:()=>{maxSteps=Math.min(40,maxSteps+3);}},
                 {id:'hourglass',name:'时间沙漏',icon:'⏳',desc:'使用后当前步数+3步',type:'active',effect:()=>{addBeltItem('hourglass');}},
@@ -849,12 +738,11 @@
                 {id:'allin',name:'全押',icon:'💰',desc:'步数减半,得分×2',type:'active',effect:()=>{addBeltItem('allin');}},
                 {id:'lucky',name:'幸运护符',icon:'🍀',desc:'负面概率降50%',type:'passive',effect:()=>{hasLucky=true;}},
                 {id:'mirror',name:'镜像棋盘',icon:'🪞',desc:'棋盘颠倒,消块+15分',type:'passive',effect:()=>{hasMirror=true;applyMirror();}},
-                {id:'filter',name:'彩色滤镜',icon:'🎨',desc:'紫色方块得分×2',type:'passive',effect:()=>{hasFilter=true;applyFilter();}},
+                {id:'filter',name:'色相轮盘',icon:'🎨',desc:'每3步高亮一种颜色，消除该色本批+200分',type:'passive',effect:()=>{hasFilter=true;initFilterWheel();}},
                 {id:'popup',name:'弹窗地狱',icon:'🪟',desc:'每6步弹窗,关闭+500分',type:'passive',effect:()=>{hasPopupHell=true;}},
                 {id:'visualglitch',name:'坏点侵蚀视觉',icon:'💀',desc:'全屏随机坏点,得分×1.5',type:'passive',effect:()=>{hasVisualGlitch=true;startVisualGlitch();}},
             ];
 
-            // ==================== 游戏状态变量 ====================
             let board,score,stepsLeft,selectedRow=-1,selectedCol=-1,isProcessing=false,comboCount=0,gameOver=false,newSpawnCells=[],rainbowMode=null;
             let stepsSinceLastGlitch=0;
             let currentStage=1,targetScore=LEVELS[0].target,glitchInterval=LEVELS[0].glitchInterval,startGlitchCount=LEVELS[0].startGlitch,totalScore=0,stage6Cleared=false;
@@ -864,8 +752,58 @@
             let allinActive=false,diceUsed=false,prismUsed=false;
             let recycleCounter=0,specialGenCounter=0;
             let halfStepToggle=false,stepsSinceLastPopup=0,visualGlitchInterval=null;
+            let maxCombo=0,activeItemUses=0,specialCount=0,rainbowCount=0,resonanceCount=0;
 
-            // ==================== HUD 更新 ====================
+            // ===== 色相轮盘 =====
+            const FILTER_COLOR_NAMES = ['红','蓝','绿','黄','紫'];
+            const FILTER_COLOR_HEX   = ['#ff6161','#5ca0f2','#6fcf6f','#ffd966','#c77dff'];
+            const FILTER_ROTATE_EVERY = 3;
+            const FILTER_BONUS = 200;
+            let filterHighlightColor = -1;
+            let filterStepCounter = 0;
+
+            function initFilterWheel() {
+                filterHighlightColor = Math.floor(Math.random() * COLORS);
+                filterStepCounter = 0;
+                applyFilterWheelVisual();
+                updatePassiveBar();
+            }
+
+            function rotateFilterWheel() {
+                let next;
+                do { next = Math.floor(Math.random() * COLORS); }
+                while (next === filterHighlightColor && COLORS > 1);
+                filterHighlightColor = next;
+                filterStepCounter = 0;
+                applyFilterWheelVisual();
+                updatePassiveBar();
+            }
+
+            function tickFilterWheel() {
+                if (!hasFilter) return;
+                filterStepCounter++;
+                if (filterStepCounter >= FILTER_ROTATE_EVERY) rotateFilterWheel();
+            }
+
+            function applyFilterWheelVisual() {
+                const overlay = document.getElementById('filterGlowOverlay');
+                if (!overlay) return;
+                if (!hasFilter || filterHighlightColor < 0) {
+                    overlay.style.setProperty('--filter-glow', 'transparent');
+                    return;
+                }
+                overlay.style.setProperty('--filter-glow', FILTER_COLOR_HEX[filterHighlightColor]);
+            }
+
+            function calcFilterBatchBonus(matchedSet) {
+                if (!hasFilter || filterHighlightColor < 0) return 0;
+                for (const idx of matchedSet) {
+                    const r = Math.floor(idx / COLS), c = idx % COLS;
+                    if (board[r][c] === filterHighlightColor) return FILTER_BONUS;
+                }
+                return 0;
+            }
+
             function updateHUD(){scoreDisplay.textContent=score.toLocaleString();stepsDisplay.textContent='步数 '+stepsLeft;stepsDisplay.classList.toggle('warning',stepsLeft<=6);levelDisplay.textContent='第'+currentStage+'关';targetDisplay.textContent='目标 '+targetScore;}
             function addScore(delta){if(delta<0)score=Math.max(0,score+delta);else score+=delta;scoreDisplay.textContent=score.toLocaleString();}
             function showTotalPopup(delta){if(delta===0)return;totalPopup.textContent=(delta>0?'+':'')+delta;totalPopup.classList.toggle('negative',delta<0);totalPopup.style.display='block';setTimeout(()=>totalPopup.style.display='none',1500);}
@@ -875,26 +813,123 @@
                 if(hasSpecialGen)passives.push('✦特殊块生成');if(hasResonance)passives.push('🌈彩虹共鸣');
                 if(hasChainExt)passives.push('💥连锁延伸');if(hasRisk)passives.push('⚡风险消除');
                 if(hasLucky)passives.push('🍀幸运护符');if(hasMirror)passives.push('🪞镜像棋盘');
-                if(hasFilter)passives.push('🎨彩色滤镜');if(hasPopupHell)passives.push('🪟弹窗地狱');
+                if(hasFilter)passives.push('🎨轮盘·'+FILTER_COLOR_NAMES[filterHighlightColor]+'色');
+                if(hasPopupHell)passives.push('🪟弹窗地狱');
                 if(hasVisualGlitch)passives.push('💀坏点侵蚀视觉');if(allinActive)passives.push('💰全押(激活)');
                 passiveBar.textContent=passives.length>0?'被动: '+passives.join(' '):'被动道具: 无';
             }
 
-            // ==================== 存档系统 ====================
-            function saveGameState(){localStorage.setItem(SAVE_KEY,JSON.stringify({board,score,stepsLeft,stepsSinceLastGlitch,currentStage,targetScore,totalScore,glitchInterval,startGlitchCount,stage6Cleared,obtainedItems,beltItems,maxSteps,hasRecycle,hasSlowRift,hasSpecialGen,hasResonance,hasChainExt,hasRisk,hasLucky,hasMirror,hasFilter,hasPopupHell,hasVisualGlitch,allinActive,diceUsed,prismUsed,recycleCounter,specialGenCounter,stepsSinceLastPopup}));}
-            function loadGameState(){const saved=localStorage.getItem(SAVE_KEY);if(!saved)return false;try{const state=JSON.parse(saved);if(state.board&&Array.isArray(state.board)&&state.board.length===ROWS){Object.assign(window,state);selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;updateHUD();gameOverOverlay.classList.remove('active');applyAllVisuals();renderBoard();renderBelt();updatePassiveBar();return true;}}catch(e){}return false;}
+            function saveGameState(){
+                localStorage.setItem(SAVE_KEY,JSON.stringify({
+                    board,score,stepsLeft,stepsSinceLastGlitch,
+                    currentStage,targetScore,totalScore,
+                    glitchInterval,startGlitchCount,stage6Cleared,
+                    obtainedItems,beltItems,maxSteps,
+                    hasRecycle,hasSlowRift,hasSpecialGen,hasResonance,hasChainExt,
+                    hasRisk,hasLucky,hasMirror,hasFilter,hasPopupHell,hasVisualGlitch,
+                    allinActive,diceUsed,prismUsed,
+                    recycleCounter,specialGenCounter,
+                    stepsSinceLastPopup,halfStepToggle,
+                    maxCombo,activeItemUses,specialCount,rainbowCount,resonanceCount
+                }));
+            }
+
+            function loadGameState(){
+                const saved=localStorage.getItem(SAVE_KEY);
+                if(!saved)return false;
+                try{
+                    const state=JSON.parse(saved);
+                    if(!state.board||!Array.isArray(state.board)||state.board.length!==ROWS)return false;
+
+                    board=state.board.map(row=>row.slice());
+                    score=state.score??0;
+                    stepsLeft=state.stepsLeft??TOTAL_STEPS;
+                    stepsSinceLastGlitch=state.stepsSinceLastGlitch??0;
+                    currentStage=state.currentStage??1;
+                    targetScore=state.targetScore??LEVELS[0].target;
+                    totalScore=state.totalScore??0;
+                    glitchInterval=state.glitchInterval??LEVELS[0].glitchInterval;
+                    startGlitchCount=state.startGlitchCount??LEVELS[0].startGlitch;
+                    stage6Cleared=state.stage6Cleared??false;
+                    obtainedItems=state.obtainedItems??[];
+                    beltItems=state.beltItems??[];
+                    maxSteps=state.maxSteps??TOTAL_STEPS;
+
+                    hasRecycle=state.hasRecycle??false;
+                    hasSlowRift=state.hasSlowRift??false;
+                    hasSpecialGen=state.hasSpecialGen??false;
+                    hasResonance=state.hasResonance??false;
+                    hasChainExt=state.hasChainExt??false;
+                    hasRisk=state.hasRisk??false;
+                    hasLucky=state.hasLucky??false;
+                    hasMirror=state.hasMirror??false;
+                    hasFilter=state.hasFilter??false;
+                    hasPopupHell=state.hasPopupHell??false;
+                    hasVisualGlitch=state.hasVisualGlitch??false;
+                    allinActive=state.allinActive??false;
+                    diceUsed=state.diceUsed??false;
+                    prismUsed=state.prismUsed??false;
+                    recycleCounter=state.recycleCounter??0;
+                    specialGenCounter=state.specialGenCounter??0;
+                    halfStepToggle=state.halfStepToggle??false;
+                    stepsSinceLastPopup=state.stepsSinceLastPopup??0;
+                    maxCombo=state.maxCombo??0;
+                    activeItemUses=state.activeItemUses??0;
+                    specialCount=state.specialCount??0;
+                    rainbowCount=state.rainbowCount??0;
+                    resonanceCount=state.resonanceCount??0;
+
+                    selectedRow=selectedCol=-1;
+                    isProcessing=false;
+                    comboCount=0;
+                    gameOver=false;
+                    newSpawnCells=[];
+                    rainbowMode=null;
+                    prismMode=false;
+
+                    gameOverOverlay.classList.remove('active');
+                    rewardOverlay.classList.remove('active');
+                    dicePopupOverlay.classList.remove('active');
+                    dicePopupOverlay.style.display='none';
+                    rainbowHint.classList.remove('show');
+                    comboIndicator.classList.remove('show');
+                    glitchWarning.classList.remove('show');
+                    totalPopup.style.display='none';
+                    stepsDisplay.style.color=allinActive?'#ff4444':'#ffdb8e';
+
+                    if(hasFilter) initFilterWheel();
+
+                    updateHUD();
+                    applyAllVisuals();
+                    renderBoard();
+                    renderBelt();
+                    updatePassiveBar();
+                    return true;
+                }catch(e){console.error('读档失败:',e);}
+                return false;
+            }
             function clearGameState(){localStorage.removeItem(SAVE_KEY);}
 
-            // ==================== 道具腰带管理 ====================
             function addBeltItem(itemId){if(beltItems.length>=4)return;beltItems.push({id:itemId,used:false});renderBelt();}
             function renderBelt(){const slots=itemBelt.querySelectorAll('.item-slot');for(let i=0;i<4;i++){if(i<beltItems.length){const item=ITEM_POOL.find(it=>it.id===beltItems[i].id);slots[i].textContent=item?item.icon:'?';slots[i].className='item-slot '+(beltItems[i].used?'used-slot':'active-slot');}else{slots[i].textContent='🔒';slots[i].className='item-slot';}}}
-            function useBeltItem(slotIndex){if(slotIndex>=beltItems.length||beltItems[slotIndex].used||isProcessing||gameOver)return;const itemId=beltItems[slotIndex].id;SoundEngine.play('item_use');beltItems[slotIndex].used=true;renderBelt();if(itemId==='prism'){prismMode=true;rainbowMode=null;selectedRow=selectedCol=-1;renderBoard();}else if(itemId==='dice'){useDice();}else if(itemId==='allin'){useAllin();}else if(itemId==='hourglass'){stepsLeft+=3;updateHUD();}}
+            function useBeltItem(slotIndex){
+                if(slotIndex>=beltItems.length||beltItems[slotIndex].used||isProcessing||gameOver)return;
+                const itemId=beltItems[slotIndex].id;
+                SoundEngine.play('item_use');
+                activeItemUses++;
+                beltItems[slotIndex].used=true;
+                renderBelt();
+                if(itemId==='prism'){prismMode=true;rainbowMode=null;selectedRow=selectedCol=-1;renderBoard();}
+                else if(itemId==='dice'){useDice();}
+                else if(itemId==='allin'){useAllin();}
+                else if(itemId==='hourglass'){stepsLeft+=3;updateHUD();}
+                saveGameState();
+            }
             document.getElementById('beltSlot0').addEventListener('click',()=>useBeltItem(0));
             document.getElementById('beltSlot1').addEventListener('click',()=>useBeltItem(1));
             document.getElementById('beltSlot2').addEventListener('click',()=>useBeltItem(2));
             document.getElementById('beltSlot3').addEventListener('click',()=>useBeltItem(3));
 
-            // ==================== 主动道具逻辑 ====================
             let prismMode=false;
             function useDice(){
                 if(diceUsed||isProcessing||gameOver) return;
@@ -903,7 +938,8 @@
                 const icons = ['⚀','⚁','⚂','⚃','⚄','⚅'];
                 diceResultIcon.textContent = icons[roll-1];
                 let resultText = '';
-                if(roll <= 2){
+                const badRollMax = hasLucky ? 1 : 2;
+                if(roll <= badRollMax){
                     resultText = '不幸! -3步 +3坏点';
                     stepsLeft = Math.max(0, stepsLeft-3);
                     updateHUD();
@@ -928,27 +964,85 @@
                 dicePopupOverlay.classList.remove('active');
                 checkStageComplete();
                 if(stepsLeft<=0 && !gameOver) endGameWithFailure();
+                saveGameState();
             });
             function useAllin(){if(allinActive||isProcessing||gameOver)return;allinActive=true;const half=Math.floor(stepsLeft/2);stepsLeft-=half;updateHUD();stepsDisplay.style.color='#ff4444';updatePassiveBar();}
 
-            // ==================== 界面效果管理 ====================
-            function applyMirror(){if(hasMirror)crtMonitor.classList.add('mirrored');}
-            function applyFilter(){if(hasFilter)crtMonitor.classList.add('filtered');}
-            function applyAllVisuals(){applyMirror();applyFilter();if(hasVisualGlitch)startVisualGlitch();}
+            function applyMirror(){crtMonitor.classList.toggle('mirrored',hasMirror);}
+            function applyFilter(){applyFilterWheelVisual();}
+            function applyAllVisuals(){
+                applyMirror();
+                applyFilter();
+                if(hasVisualGlitch){
+                    startVisualGlitch();
+                }else{
+                    if(visualGlitchInterval){clearInterval(visualGlitchInterval);visualGlitchInterval=null;}
+                    gameScreen.querySelectorAll('.visual-glitch-dot').forEach(d=>d.remove());
+                }
+            }
             function startVisualGlitch(){if(!hasVisualGlitch)return;if(visualGlitchInterval)clearInterval(visualGlitchInterval);visualGlitchInterval=setInterval(()=>{if(!gameOver)spawnVisualDots();},1500);spawnVisualDots();}
             function spawnVisualDots(){const existing=gameScreen.querySelectorAll('.visual-glitch-dot');existing.forEach(d=>d.remove());const count=10+Math.floor(Math.random()*11);for(let i=0;i<count;i++){const dot=document.createElement('div');dot.className='visual-glitch-dot';dot.style.left=Math.random()*95+'%';dot.style.top=Math.random()*95+'%';gameScreen.appendChild(dot);}setTimeout(()=>{const dots=gameScreen.querySelectorAll('.visual-glitch-dot');dots.forEach(d=>d.remove());},2000+Math.random()*2000);}
 
-            // ==================== 棋盘初始化 ====================
             function initBoard(){board=Array.from({length:ROWS},()=>Array(COLS).fill(0));for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){let color;do{color=Math.floor(Math.random()*COLORS);}while(wouldMatch(r,c,color));board[r][c]=color;}if(startGlitchCount>0){let placed=0;const empties=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]>=0&&board[r][c]<COLORS)empties.push({r,c});while(placed<startGlitchCount&&empties.length>0){const idx=Math.floor(Math.random()*empties.length);const pos=empties.splice(idx,1)[0];board[pos.r][pos.c]=TYPE_GLITCH;placed++;}}}
             function wouldMatch(r,c,color){if(color<0)return false;if(c>=2&&board[r][c-1]===color&&board[r][c-2]===color)return true;if(r>=2&&board[r-1]&&board[r-1][c]===color&&board[r-2]&&board[r-2][c]===color)return true;return false;}
 
-            // ==================== 游戏流程控制 ====================
-            function startNewGame(){currentStage=1;totalScore=0;stage6Cleared=false;applyLevelConfig();score=0;maxSteps=TOTAL_STEPS;stepsLeft=maxSteps;stepsSinceLastGlitch=0;initBoard();selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;obtainedItems=[];beltItems=[];hasRecycle=hasSlowRift=hasSpecialGen=hasResonance=hasChainExt=hasRisk=hasLucky=hasMirror=hasFilter=hasPopupHell=hasVisualGlitch=false;allinActive=diceUsed=prismUsed=false;recycleCounter=0;specialGenCounter=0;halfStepToggle=false;stepsSinceLastPopup=0;stepsDisplay.style.color='#ffdb8e';crtMonitor.classList.remove('mirrored','filtered');if(visualGlitchInterval)clearInterval(visualGlitchInterval);const dots=gameScreen.querySelectorAll('.visual-glitch-dot');dots.forEach(d=>d.remove());updateHUD();gameOverOverlay.classList.remove('active');renderBoard();renderBelt();updatePassiveBar();clearGameState();saveGameState();}
+            function getStatSummary() {
+                return `<div style="font-size:6px;line-height:1.6;margin-top:6px;">
+                    最高连消: x${maxCombo}<br>
+                    道具使用: ${activeItemUses}次<br>
+                    特殊块引爆: ${specialCount}次<br>
+                    彩虹块使用: ${rainbowCount}次<br>
+                    裂隙共鸣: ${resonanceCount}次
+                </div>`;
+            }
+
+            function endGameWithVictory(){
+                totalScore+=score;gameOver=true;SoundEngine.play('game_over');
+                gameOverText.textContent='裂隙征服';
+                gameOverScore.innerHTML = `<div>总得分: ${totalScore.toLocaleString()}</div>${getStatSummary()}`;
+                gameOverButtons.innerHTML=`<button class="restart-btn" id="finalRestartBtn">再次探索</button><button class="menu-return-btn" id="finalMenuBtn">返回主菜单</button>`;
+                gameOverOverlay.classList.add('active');clearGameState();
+                document.getElementById('finalRestartBtn').addEventListener('click',()=>{SoundEngine.play('button');gameOverOverlay.classList.remove('active');startNewGame();});
+                document.getElementById('finalMenuBtn').addEventListener('click',()=>{SoundEngine.play('button');returnToMenu();});
+                renderBoard();
+            }
+            function endGameWithFailure(){
+                totalScore+=score;gameOver=true;SoundEngine.play('game_over');
+                gameOverText.textContent='裂隙闭合';
+                gameOverScore.innerHTML = `<div>总得分: ${totalScore.toLocaleString()}</div>${getStatSummary()}`;
+                gameOverButtons.innerHTML=`<button class="restart-btn" id="failRestartBtn">再次探索</button><button class="menu-return-btn" id="failMenuBtn">返回主菜单</button>`;
+                gameOverOverlay.classList.add('active');clearGameState();
+                document.getElementById('failRestartBtn').addEventListener('click',()=>{SoundEngine.play('button');gameOverOverlay.classList.remove('active');startNewGame();});
+                document.getElementById('failMenuBtn').addEventListener('click',()=>{SoundEngine.play('button');returnToMenu();});
+                renderBoard();
+            }
+            function showStage6WinDialog(){
+                const winOverlay=document.createElement('div');winOverlay.className='game-over-overlay active';
+                winOverlay.innerHTML=`<div class="game-over-panel"><div class="game-over-text">裂隙征服</div><div class="game-over-score" style="font-size:8px;">
+                    <div>本关得分: ${score.toLocaleString()}</div>
+                    ${getStatSummary()}
+                </div><button class="restart-btn" id="continueExploreBtn">继续探索</button><button class="menu-return-btn" id="backToMenuFromWinBtn">返回主菜单</button></div>`;
+                gameScreen.appendChild(winOverlay);
+                document.getElementById('continueExploreBtn').addEventListener('click',()=>{SoundEngine.play('button');winOverlay.remove();stage6Cleared=true;gameOver=false;gameOverOverlay.classList.remove('active');renderBoard();saveGameState();});
+                document.getElementById('backToMenuFromWinBtn').addEventListener('click',()=>{SoundEngine.play('button');winOverlay.remove();returnToMenu();});
+            }
+
+            function startNewGame(){
+                currentStage=1;totalScore=0;stage6Cleared=false;applyLevelConfig();score=0;maxSteps=TOTAL_STEPS;stepsLeft=maxSteps;stepsSinceLastGlitch=0;
+                initBoard();selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;
+                obtainedItems=[];beltItems=[];hasRecycle=hasSlowRift=hasSpecialGen=hasResonance=hasChainExt=hasRisk=hasLucky=hasMirror=hasFilter=hasPopupHell=hasVisualGlitch=false;
+                allinActive=diceUsed=prismUsed=false;recycleCounter=0;specialGenCounter=0;halfStepToggle=false;stepsSinceLastPopup=0;
+                maxCombo=0;activeItemUses=0;specialCount=0;rainbowCount=0;resonanceCount=0;
+                filterHighlightColor=-1;filterStepCounter=0;applyFilterWheelVisual();
+                stepsDisplay.style.color='#ffdb8e';crtMonitor.classList.remove('mirrored');
+                if(visualGlitchInterval)clearInterval(visualGlitchInterval);
+                const dots=gameScreen.querySelectorAll('.visual-glitch-dot');dots.forEach(d=>d.remove());
+                updateHUD();gameOverOverlay.classList.remove('active');renderBoard();renderBelt();updatePassiveBar();clearGameState();saveGameState();
+            }
             function applyLevelConfig(){const cfg=LEVELS[currentStage-1];targetScore=cfg.target;glitchInterval=cfg.glitchInterval;startGlitchCount=cfg.startGlitch;}
-            function advanceToNextStage(){totalScore+=score;if(currentStage<6){currentStage++;applyLevelConfig();score=0;stepsLeft=maxSteps;stepsSinceLastGlitch=0;initBoard();selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;diceUsed=prismUsed=false;halfStepToggle=false;stepsSinceLastPopup=0;allinActive=false;stepsDisplay.style.color='#ffdb8e';beltItems.forEach(item=>item.used=false);renderBelt();updateHUD();gameOverOverlay.classList.remove('active');renderBoard();saveGameState();}}
+            function advanceToNextStage(){totalScore+=score;if(currentStage<6){currentStage++;applyLevelConfig();score=0;stepsLeft=maxSteps;stepsSinceLastGlitch=0;initBoard();selectedRow=selectedCol=-1;isProcessing=comboCount=0;gameOver=false;newSpawnCells=[];rainbowMode=null;diceUsed=prismUsed=false;halfStepToggle=false;stepsSinceLastPopup=0;allinActive=false;stepsDisplay.style.color='#ffdb8e';beltItems.forEach(item=>item.used=false);maxCombo=0;activeItemUses=0;specialCount=0;rainbowCount=0;resonanceCount=0;if(hasFilter)initFilterWheel();renderBelt();updateHUD();gameOverOverlay.classList.remove('active');renderBoard();saveGameState();}}
             function checkStageComplete(){if(gameOver||stage6Cleared)return;if(score>=targetScore){if(currentStage===6)showStage6WinDialog();else{ SoundEngine.play('level_complete'); showRewardPanel(); }}}
 
-            // ==================== 道具奖励面板 ====================
             function showRewardPanel(){
                 const availablePool = ITEM_POOL.filter(item => !obtainedItems.includes(item.id));
                 const selected = [];
@@ -963,30 +1057,23 @@
                 rewardCards.querySelectorAll('.reward-card').forEach(card => { card.addEventListener('click', () => { const id = card.dataset.id; const item = ITEM_POOL.find(it => it.id === id); if (item) { item.effect(); obtainedItems.push(id); SoundEngine.play('item_get'); updatePassiveBar(); } rewardOverlay.classList.remove('active'); advanceToNextStage(); }); });
             }
 
-            // ==================== 坏点管理 ====================
             function countGlitchOnBoard(){let count=0;for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===TYPE_GLITCH)count++;return count;}
             function spawnRandomGlitch(){const empties=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]>=0&&board[r][c]<COLORS)empties.push({r,c});if(empties.length>0){const pos=empties[Math.floor(Math.random()*empties.length)];board[pos.r][pos.c]=TYPE_GLITCH;return true;}return false;}
 
-            // ==================== 棋盘渲染 ====================
             function getCellClass(val){if(val===TYPE_GLITCH)return'glitch';if(val===TYPE_SPECIAL)return'special';if(val===TYPE_RAINBOW)return'rainbow';if(val>=0&&val<COLORS)return COLOR_CLASSES[val];return'';}
-            function renderBoard(){boardEl.innerHTML='';for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const cell=document.createElement('div');cell.className='cell '+getCellClass(board[r][c]);if(r===selectedRow&&c===selectedCol)cell.classList.add('selected');if(rainbowMode&&r===rainbowMode.r&&c===rainbowMode.c)cell.classList.add('rainbow-selected');if(prismMode)cell.classList.add('selected');if(newSpawnCells.some(n=>n.r===r&&n.c===c))cell.classList.add('new-spawn');cell.dataset.row=r;cell.dataset.col=c;cell.addEventListener('click',()=>handleCellClick(r,c));cell.addEventListener('touchstart',(e)=>{e.preventDefault();handleCellClick(r,c);});boardEl.appendChild(cell);}setTimeout(()=>newSpawnCells=[],300);}
+            function renderBoard(){boardEl.innerHTML='';for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const cell=document.createElement('div');cell.className='cell '+getCellClass(board[r][c]);if(hasFilter&&board[r][c]===filterHighlightColor){cell.classList.add('filter-highlight');cell.style.setProperty('--hl-color',FILTER_COLOR_HEX[filterHighlightColor]);}if(r===selectedRow&&c===selectedCol)cell.classList.add('selected');if(rainbowMode&&r===rainbowMode.r&&c===rainbowMode.c)cell.classList.add('rainbow-selected');if(prismMode)cell.classList.add('selected');if(newSpawnCells.some(n=>n.r===r&&n.c===c))cell.classList.add('new-spawn');cell.dataset.row=r;cell.dataset.col=c;cell.addEventListener('click',()=>handleCellClick(r,c));cell.addEventListener('touchstart',(e)=>{e.preventDefault();handleCellClick(r,c);});boardEl.appendChild(cell);}setTimeout(()=>newSpawnCells=[],300);}
 
-            // ==================== 点击处理 ====================
             function handleCellClick(row,col){if(isProcessing||gameOver)return;SoundEngine.play('select');const val=board[row][col];if(prismMode){if(val>=0&&val<COLORS){triggerPrism(row,col);return;}else{prismMode=false;renderBoard();return;}}if(rainbowMode){if(val>=0&&val<COLORS)triggerRainbow(rainbowMode.r,rainbowMode.c,val);else if(val===TYPE_SPECIAL)triggerResonance(rainbowMode.r,rainbowMode.c,row,col);else{rainbowMode=null;rainbowHint.classList.remove('show');renderBoard();}return;}if(val===TYPE_GLITCH)return;if(val===TYPE_RAINBOW){rainbowMode={r:row,c:col};rainbowHint.classList.add('show');selectedRow=selectedCol=-1;renderBoard();return;}if(val===TYPE_SPECIAL){triggerSpecial(row,col);return;}if(selectedRow===-1){selectedRow=row;selectedCol=col;renderBoard();}else if(selectedRow===row&&selectedCol===col){selectedRow=selectedCol=-1;renderBoard();}else if(Math.abs(selectedRow-row)+Math.abs(selectedCol-col)===1){const sr=selectedRow,sc=selectedCol;selectedRow=selectedCol=-1;trySwap(sr,sc,row,col);}else{selectedRow=row;selectedCol=col;renderBoard();}}
 
-            // ==================== 彩虹棱镜 ====================
-            async function triggerPrism(row,col){if(isProcessing||gameOver||!prismMode||board[row][col]<0||board[row][col]>=COLORS)return;isProcessing=true;prismMode=false;const startScore=score;board[row][col]=TYPE_RAINBOW;const positions=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=row+dr,nc=col+dc;if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)positions.push({r:nr,c:nc});}if(positions.length>0){const pos=positions[Math.floor(Math.random()*positions.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
+            async function triggerPrism(row,col){if(isProcessing||gameOver||!prismMode||board[row][col]<0||board[row][col]>=COLORS)return;isProcessing=true;prismMode=false;const startScore=score;board[row][col]=TYPE_RAINBOW;rainbowCount++;const positions=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=row+dr,nc=col+dc;if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)positions.push({r:nr,c:nc});}if(positions.length>0){const pos=positions[Math.floor(Math.random()*positions.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
 
-            // ==================== 裂隙共鸣 ====================
-            async function triggerResonance(rRainbow,cRainbow,rSpecial,cSpecial){if(isProcessing||gameOver)return;SoundEngine.play('resonance');const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[];let clearCount=0;for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++){const v=board[rr][cc];if(v>=0&&v<COLORS){toClear.push({r:rr,c:cc});clearCount++;}else if(v===TYPE_GLITCH)toClear.push({r:rr,c:cc});}toClear.push({r:rRainbow,c:cRainbow});toClear.push({r:rSpecial,c:cSpecial});const flash=document.createElement('div');flash.className='flash-overlay';gameScreen.appendChild(flash);setTimeout(()=>flash.remove(),500);boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);for(const pos of toClear)board[pos.r][pos.c]=-1;let resonanceScore=clearCount*10+50+30;if(hasResonance)resonanceScore=clearCount*20+50+30;if(hasMirror)resonanceScore+=clearCount*15;if(hasVisualGlitch)resonanceScore=Math.floor(resonanceScore*1.5);if(allinActive)resonanceScore*=2;addScore(resonanceScore);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
+            async function triggerResonance(rRainbow,cRainbow,rSpecial,cSpecial){if(isProcessing||gameOver)return;SoundEngine.play('resonance');resonanceCount++;const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[];let clearCount=0;for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++){const v=board[rr][cc];if(v>=0&&v<COLORS){toClear.push({r:rr,c:cc});clearCount++;}else if(v===TYPE_GLITCH)toClear.push({r:rr,c:cc});}toClear.push({r:rRainbow,c:cRainbow});toClear.push({r:rSpecial,c:cSpecial});const flash=document.createElement('div');flash.className='flash-overlay';gameScreen.appendChild(flash);setTimeout(()=>flash.remove(),500);boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);for(const pos of toClear)board[pos.r][pos.c]=-1;let resonanceScore=clearCount*10+50+30;if(hasResonance)resonanceScore=clearCount*20+50+30;if(hasMirror)resonanceScore+=clearCount*15;if(hasVisualGlitch)resonanceScore=Math.floor(resonanceScore*1.5);if(allinActive)resonanceScore*=2;addScore(resonanceScore);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
             function shatterCell(cell){if(!cell||cell.classList.contains('shattering'))return;cell.classList.add('shattering');for(let i=1;i<=4;i++){const shard=document.createElement('div');shard.className='shard';shard.style.animation=`shard${i} 0.4s ease-out forwards`;cell.appendChild(shard);}setTimeout(()=>{cell.querySelectorAll('.shard').forEach(s=>s.remove());cell.classList.remove('shattering');},400);}
 
-            // ==================== 彩虹块 ====================
-            async function triggerRainbow(r,c,color){if(isProcessing||gameOver)return;SoundEngine.play('rainbow');const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[{r,c}];for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++)if(board[rr][cc]===color)toClear.push({r:rr,c:cc});boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);let clearCount=0;for(const pos of toClear){if(board[pos.r][pos.c]>=0)clearCount++;board[pos.r][pos.c]=-1;}let rainbowScore=clearCount*10+50;if(hasFilter&&color===3)rainbowScore=clearCount*20+50;if(hasMirror)rainbowScore+=clearCount*15;if(hasVisualGlitch)rainbowScore=Math.floor(rainbowScore*1.5);if(allinActive)rainbowScore*=2;addScore(rainbowScore);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
+            async function triggerRainbow(r,c,color){if(isProcessing||gameOver)return;SoundEngine.play('rainbow');rainbowCount++;const startScore=score;isProcessing=true;rainbowMode=null;rainbowHint.classList.remove('show');const toClear=[{r,c}];for(let rr=0;rr<ROWS;rr++)for(let cc=0;cc<COLS;cc++)if(board[rr][cc]===color)toClear.push({r:rr,c:cc});boardEl.querySelectorAll('.cell').forEach(cell=>{const rr=parseInt(cell.dataset.row),cc=parseInt(cell.dataset.col);if(toClear.some(p=>p.r===rr&&p.c===cc))shatterCell(cell);});await sleep(400);let clearCount=0;for(const pos of toClear){if(board[pos.r][pos.c]>=0)clearCount++;board[pos.r][pos.c]=-1;}let rainbowScore=clearCount*10+50;if(hasMirror)rainbowScore+=clearCount*15;if(hasVisualGlitch)rainbowScore=Math.floor(rainbowScore*1.5);if(allinActive)rainbowScore*=2;addScore(rainbowScore);applyGravityAndSpawn();renderBoard();await processChain();saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();}
 
-            // ==================== 特殊块引爆 ====================
             async function triggerSpecial(row,col){
-                if(isProcessing||gameOver)return;SoundEngine.play('special');const startScore=score;isProcessing=true;
+                if(isProcessing||gameOver)return;SoundEngine.play('special');specialCount++;const startScore=score;isProcessing=true;
                 const range=hasChainExt?2:1;
                 const allCleared=new Set();const queue=[{r:row,c:col}];allCleared.add(row*COLS+col);
                 while(queue.length>0){const current=queue.shift();for(let dr=-range;dr<=range;dr++)for(let dc=-range;dc<=range;dc++){const nr=current.r+dr,nc=current.c+dc;if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&!allCleared.has(nr*COLS+nc)){allCleared.add(nr*COLS+nc);if(board[nr][nc]===TYPE_SPECIAL||board[nr][nc]===TYPE_RAINBOW)queue.push({r:nr,c:nc});}}}
@@ -1001,11 +1088,9 @@
                 saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();
             }
 
-            // ==================== 被动计数器 ====================
             function addSwapCounters(count){if(hasRecycle){recycleCounter+=count;while(recycleCounter>=40){recycleCounter-=40;stepsLeft++;updateHUD();}}if(hasSpecialGen){specialGenCounter+=count;}}
             function checkAndSpawnSpecialGen(){if(!hasSpecialGen)return;while(specialGenCounter>=30){specialGenCounter-=30;const empties=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===-1)empties.push({r,c});if(empties.length>0){const pos=empties[Math.floor(Math.random()*empties.length)];board[pos.r][pos.c]=TYPE_SPECIAL;}}}
 
-            // ==================== 交换与消除逻辑 ====================
             async function trySwap(r1,c1,r2,c2){
                 isProcessing=true;SoundEngine.play('swap');const startScore=score;[board[r1][c1],board[r2][c2]]=[board[r2][c2],board[r1][c1]];renderBoard();const matchData=findMatches();
                 if(matchData.matched.size===0){await sleep(180);[board[r1][c1],board[r2][c2]]=[board[r2][c2],board[r1][c1]];renderBoard();isProcessing=false;return;}
@@ -1014,32 +1099,30 @@
                 const glitchCount=countGlitchOnBoard();if(glitchCount>0){SoundEngine.play('glitch_penalty');addScore(-(glitchCount*5));glitchWarning.textContent='⚠️ 坏点侵蚀 -'+(glitchCount*5);glitchWarning.classList.add('show');setTimeout(()=>glitchWarning.classList.remove('show'),800);}
                 stepsSinceLastGlitch++;if(stepsSinceLastGlitch>=glitchInterval){stepsSinceLastGlitch=0;SoundEngine.play('glitch_spawn');spawnRandomGlitch();}
                 if(hasPopupHell){stepsSinceLastPopup++;if(stepsSinceLastPopup>=6){stepsSinceLastPopup=0;spawnPopup();}}
+                tickFilterWheel();
                 saveGameState();showTotalPopup(score-startScore);checkStageComplete();if(stepsLeft<=0&&!gameOver)endGameWithFailure();isProcessing=false;renderBoard();
             }
 
-            // ==================== 弹窗地狱 ====================
             function spawnPopup(){const popup=document.createElement('div');popup.className='popup';popup.innerHTML=`<div class="popup-title">⚠ 裂隙错误</div><div style="font-size:6px;color:#ccc;">代码 #${Math.floor(Math.random()*900)+100}</div><button class="popup-btn">确认</button>`;const maxX=gameScreen.clientWidth-120,maxY=gameScreen.clientHeight-100;popup.style.left=(20+Math.random()*(maxX-20))+'px';popup.style.top=(40+Math.random()*(maxY-40))+'px';gameScreen.appendChild(popup);const closeHandler=(e)=>{e.stopPropagation();popup.remove();addScore(500);let cleared=0;for(let r=0;r<ROWS&&cleared<3;r++)for(let c=0;c<COLS&&cleared<3;c++)if(board[r][c]===TYPE_GLITCH){board[r][c]=-1;cleared++;}if(cleared>0){applyGravityAndSpawn();renderBoard();}checkStageComplete();};popup.querySelector('.popup-btn').addEventListener('click',closeHandler);popup.addEventListener('click',closeHandler);}
 
-            // ==================== 匹配检测 ====================
             function findMatches(){const matched=new Set(),hSegments=[],vSegments=[];for(let r=0;r<ROWS;r++){let c=0;while(c<COLS){if(board[r][c]<0){c++;continue;}const color=board[r][c];let end=c;while(end+1<COLS&&board[r][end+1]===color)end++;const len=end-c+1;if(len>=3){for(let i=c;i<=end;i++)matched.add(r*COLS+i);hSegments.push({r,cStart:c,cEnd:end});}c=end+1;}}for(let c=0;c<COLS;c++){let r=0;while(r<ROWS){if(board[r][c]<0){r++;continue;}const color=board[r][c];let end=r;while(end+1<ROWS&&board[end+1][c]===color)end++;const len=end-r+1;if(len>=3){for(let i=r;i<=end;i++)matched.add(i*COLS+c);vSegments.push({c,rStart:r,rEnd:end});}r=end+1;}}const matchLengths=[];for(const seg of hSegments){const len=seg.cEnd-seg.cStart+1;if(len===4)matchLengths.push({r:seg.r,c:Math.floor((seg.cStart+seg.cEnd)/2),type:'straight4'});else if(len>=5)matchLengths.push({r:seg.r,c:Math.floor((seg.cStart+seg.cEnd)/2),type:'straight5'});}for(const seg of vSegments){const len=seg.rEnd-seg.rStart+1;if(len===4)matchLengths.push({r:Math.floor((seg.rStart+seg.rEnd)/2),c:seg.c,type:'straight4'});else if(len>=5)matchLengths.push({r:Math.floor((seg.rStart+seg.rEnd)/2),c:seg.c,type:'straight5'});}const hSet=new Set();for(const seg of hSegments){for(let c=seg.cStart;c<=seg.cEnd;c++)hSet.add(seg.r*COLS+c);}const crossPoints=[];for(const seg of vSegments){for(let r=seg.rStart;r<=seg.rEnd;r++){const key=r*COLS+seg.c;if(hSet.has(key))crossPoints.push({r,c:seg.c});}}const processedCross=new Set();for(const pt of crossPoints){const key=pt.r*COLS+pt.c;if(processedCross.has(key))continue;processedCross.add(key);const hSeg2=hSegments.find(s=>s.r===pt.r&&pt.c>=s.cStart&&pt.c<=s.cEnd);const vSeg2=vSegments.find(s=>s.c===pt.c&&pt.r>=s.rStart&&pt.r<=s.rEnd);if(!hSeg2||!vSeg2)continue;const hLen=hSeg2.cEnd-hSeg2.cStart+1;const vLen=vSeg2.rEnd-vSeg2.rStart+1;const isHEnd=(pt.c===hSeg2.cStart||pt.c===hSeg2.cEnd);const isVEnd=(pt.r===vSeg2.rStart||pt.r===vSeg2.rEnd);if(hLen>=5&&vLen>=3&&!isHEnd&&!isVEnd){const hMid=Math.floor((hSeg2.cStart+hSeg2.cEnd)/2);if(pt.c>=hMid-1&&pt.c<=hMid+1){matchLengths.push({r:pt.r,c:pt.c,type:'bigT'});continue;}}matchLengths.push({r:pt.r,c:pt.c,type:'cross'});}return {matched,matchLengths};}
 
-            // ==================== 特殊块生成 ====================
             function spawnSpecials(matchLengths){for(const m of matchLengths){if(m.type==='bigT'){const midR=m.r,midC=m.c;const positions=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=midR+dr,nc=midC+dc;if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)positions.push({r:nr,c:nc});}let placed=0;for(const pos of positions){if(placed>=2)break;board[pos.r][pos.c]=TYPE_RAINBOW;placed++;}if(placed<2&&board[midR][midC]===-1)board[midR][midC]=TYPE_RAINBOW;}else if(m.type==='straight5'){const midR=m.r,midC=m.c;if(board[midR][midC]===-1)board[midR][midC]=TYPE_RAINBOW;else{const positions=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=midR+dr,nc=midC+dc;if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)positions.push({r:nr,c:nc});}if(positions.length>0)board[positions[0].r][positions[0].c]=TYPE_RAINBOW;}}else{const midR=m.r,midC=m.c;if(board[midR][midC]===-1)board[midR][midC]=TYPE_SPECIAL;else{const positions=[];for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=midR+dr,nc=midC+dc;if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)positions.push({r:nr,c:nc});}if(positions.length>0)board[positions[0].r][positions[0].c]=TYPE_SPECIAL;}}}}
 
-            // ==================== 消除处理 ====================
             function clearMatchedAndAdjacentGlitch(matchedSet){const toClear=new Set(matchedSet);for(const idx of matchedSet){const r=Math.floor(idx/COLS),c=idx%COLS;[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc])=>{if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===TYPE_GLITCH)toClear.add(nr*COLS+nc);});}return toClear;}
             async function processMatches(matchData){
                 let{matched,matchLengths}=matchData;
                 while(matched.size>0){
-                    comboCount++;if(comboCount>=2){SoundEngine.play('combo');comboIndicator.textContent='✧ 连消 x'+comboCount+' ✧';comboIndicator.classList.add('show');} else { SoundEngine.play('match3'); }
+                    comboCount++;if(comboCount>maxCombo)maxCombo=comboCount;if(comboCount>=2){SoundEngine.play('combo');comboIndicator.textContent='✧ 连消 x'+comboCount+' ✧';comboIndicator.classList.add('show');} else { SoundEngine.play('match3'); }
                     const toClear=clearMatchedAndAdjacentGlitch(matched);
                     let baseScore=matched.size*10+(comboCount-1)*20;
-                    if(hasRisk){const rand=Math.random();if(rand<0.2)baseScore*=5;else if(rand>0.95)baseScore=Math.max(0,baseScore-100);}
+                    if(hasRisk){const rand=Math.random();const negativeThreshold=hasLucky?0.975:0.95;if(rand<0.2)baseScore*=5;else if(rand>negativeThreshold)baseScore=Math.max(0,baseScore-100);}
                     if(allinActive)baseScore*=2;
-                    if(hasFilter){let purpleCount=0,normalCount=0;for(const idx of matched){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]>=0&&board[r][c]<COLORS){if(COLOR_CLASSES[board[r][c]]==='purple')purpleCount++;else normalCount++;}}baseScore=normalCount*10+purpleCount*20+(comboCount-1)*20;}
                     if(hasMirror){let mirrorBonus=0;for(const idx of matched){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]>=0&&board[r][c]<COLORS)mirrorBonus+=15;}baseScore+=mirrorBonus;}
                     if(hasVisualGlitch)baseScore=Math.floor(baseScore*1.5);
                     addScore(baseScore);
+                    const filterBonus=calcFilterBatchBonus(matched);
+                    if(filterBonus>0){addScore(filterBonus);}
                     let normalInThisBatch=0;for(const idx of matched){if(board[Math.floor(idx/COLS)][idx%COLS]>=0&&board[Math.floor(idx/COLS)][idx%COLS]<COLORS)normalInThisBatch++;}
                     addSwapCounters(normalInThisBatch);
                     document.querySelectorAll('.cell').forEach(c=>{if(toClear.has(parseInt(c.dataset.row)*COLS+parseInt(c.dataset.col)))shatterCell(c);});
@@ -1052,10 +1135,9 @@
                 comboIndicator.classList.remove('show');
             }
             function applyGravityAndSpawn(){for(let c=0;c<COLS;c++){let wr=ROWS-1;for(let r=ROWS-1;r>=0;r--)if(board[r][c]!==-1)board[wr--][c]=board[r][c];for(let r=wr;r>=0;r--)board[r][c]=-1;}newSpawnCells=[];for(let c=0;c<COLS;c++)for(let r=0;r<ROWS;r++)if(board[r][c]===-1){board[r][c]=Math.floor(Math.random()*COLORS);newSpawnCells.push({r,c});}}
-            async function processChain(){let data=findMatches();while(data.matched.size>0){comboCount++;if(comboCount>=2){SoundEngine.play('combo');comboIndicator.textContent='✧ 连消 x'+comboCount+' ✧';comboIndicator.classList.add('show');} else { SoundEngine.play('match3'); }const toClear=clearMatchedAndAdjacentGlitch(data.matched);let baseScore=data.matched.size*10+(comboCount-1)*20;if(hasRisk){const rand=Math.random();if(rand<0.2)baseScore*=5;else if(rand>0.95)baseScore=Math.max(0,baseScore-100);}if(allinActive)baseScore*=2;if(hasFilter){let purpleCount=0,normalCount=0;for(const idx of data.matched){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]>=0&&board[r][c]<COLORS){if(COLOR_CLASSES[board[r][c]]==='purple')purpleCount++;else normalCount++;}}baseScore=normalCount*10+purpleCount*20+(comboCount-1)*20;}if(hasMirror){let mirrorBonus=0;for(const idx of data.matched){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]>=0&&board[r][c]<COLORS)mirrorBonus+=15;}baseScore+=mirrorBonus;}if(hasVisualGlitch)baseScore=Math.floor(baseScore*1.5);addScore(baseScore);let normalInThisBatch=0;for(const idx of data.matched){if(board[Math.floor(idx/COLS)][idx%COLS]>=0&&board[Math.floor(idx/COLS)][idx%COLS]<COLORS)normalInThisBatch++;}addSwapCounters(normalInThisBatch);document.querySelectorAll('.cell').forEach(c=>{if(toClear.has(parseInt(c.dataset.row)*COLS+parseInt(c.dataset.col)))shatterCell(c);});const delay=Math.max(120,380-comboCount*45);await sleep(delay);for(const idx of toClear)board[Math.floor(idx/COLS)][idx%COLS]=-1;spawnSpecials(data.matchLengths);checkAndSpawnSpecialGen();applyGravityAndSpawn();renderBoard();await sleep(120);data=findMatches();}comboIndicator.classList.remove('show');}
+            async function processChain(){let data=findMatches();while(data.matched.size>0){comboCount++;if(comboCount>maxCombo)maxCombo=comboCount;if(comboCount>=2){SoundEngine.play('combo');comboIndicator.textContent='✧ 连消 x'+comboCount+' ✧';comboIndicator.classList.add('show');} else { SoundEngine.play('match3'); }const toClear=clearMatchedAndAdjacentGlitch(data.matched);let baseScore=data.matched.size*10+(comboCount-1)*20;if(hasRisk){const rand=Math.random();const negativeThreshold=hasLucky?0.975:0.95;if(rand<0.2)baseScore*=5;else if(rand>negativeThreshold)baseScore=Math.max(0,baseScore-100);}if(allinActive)baseScore*=2;if(hasMirror){let mirrorBonus=0;for(const idx of data.matched){const r=Math.floor(idx/COLS),c=idx%COLS;if(board[r][c]>=0&&board[r][c]<COLORS)mirrorBonus+=15;}baseScore+=mirrorBonus;}if(hasVisualGlitch)baseScore=Math.floor(baseScore*1.5);addScore(baseScore);const filterBonus=calcFilterBatchBonus(data.matched);if(filterBonus>0){addScore(filterBonus);}let normalInThisBatch=0;for(const idx of data.matched){if(board[Math.floor(idx/COLS)][idx%COLS]>=0&&board[Math.floor(idx/COLS)][idx%COLS]<COLORS)normalInThisBatch++;}addSwapCounters(normalInThisBatch);document.querySelectorAll('.cell').forEach(c=>{if(toClear.has(parseInt(c.dataset.row)*COLS+parseInt(c.dataset.col)))shatterCell(c);});const delay=Math.max(120,380-comboCount*45);await sleep(delay);for(const idx of toClear)board[Math.floor(idx/COLS)][idx%COLS]=-1;spawnSpecials(data.matchLengths);checkAndSpawnSpecialGen();applyGravityAndSpawn();renderBoard();await sleep(120);data=findMatches();}comboIndicator.classList.remove('show');}
             function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
-            // ==================== 初始化 ====================
             initBoard();renderBoard();
         })();
     </script>
